@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:tap_on/Tool_Provider/TP_Dashboard.dart';
 import 'package:tap_on/Tool_Provider/TP_Login.dart';
-import 'package:tap_on/User_Home/Chatbot.dart';
+import 'package:tap_on/User_Home/AddToCart.dart';
 
 import 'package:tap_on/User_Home/UH_Notification.dart';
 import 'package:tap_on/User_Home/UH_Profile.dart';
@@ -55,11 +55,11 @@ class HomePage extends StatelessWidget {
               child: const Text("Profile"), // Add text to the button
             ),
             trailing: IconButton(
-              icon: const Icon(Icons.support_agent),
+              icon: const Icon(Icons.shopping_cart),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Chatbot()),
+                  MaterialPageRoute(builder: (context) => addtocart()),
                 );
               },
             ),

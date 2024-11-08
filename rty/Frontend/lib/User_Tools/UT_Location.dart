@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -6,6 +7,7 @@ import 'package:location/location.dart' as loc;
 import 'package:tap_on/Home%20page.dart';
 import 'package:tap_on/User_Tools/UT_NearbyShops.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as google_maps;
+import 'package:tap_on/services/location_services.dart';
 
 class UT_Location extends StatefulWidget {
   final String tool;
@@ -17,12 +19,14 @@ class UT_Location extends StatefulWidget {
 
 class _UT_LocationState extends State<UT_Location> {
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _typeAheadController = TextEditingController();
   bool _isLoadingLocation = false;
   String _currentAddress = "";
   LatLng? currentPosition;
   double? _latitude;
   double? _longitude;
   late GoogleMapController mapController;
+  String _selectedCity = '';
 
   final Set<google_maps.Marker> _markers = {};
 
@@ -123,6 +127,56 @@ class _UT_LocationState extends State<UT_Location> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            TypeAheadField(
+                suggestionsCallback: (pattern) async {
+                  if (pattern.isEmpty) {
+                    return [];
+                  }
+                  return await LocationService.fetchLocationSuggestions(
+                      pattern);
+                },
+                itemBuilder: (context, suggestion) {
+                  return ListTile(
+                    title: Text(suggestion),
+                  );
+                },
+                onSelected: (suggestion) {
+                  _typeAheadController.text = suggestion;
+                  setState(() {
+                    _selectedCity = suggestion;
+                  });
+                },
+                builder: (context, controller, focusNode) {
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      icon: const Icon(Icons.location_on, color: Colors.black),
+                      label: const Text('Select Nearest City',
+                          style: TextStyle(color: Colors.black)),
+                      filled: true,
+                      helperStyle: const TextStyle(color: Colors.blue),
+                      fillColor: Colors.transparent,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide:
+                            const BorderSide(color: Colors.blue, width: 1),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide:
+                            const BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide:
+                            const BorderSide(color: Colors.blue, width: 1),
+                      ),
+                    ),
+                    style: const TextStyle(color: Colors.black),
+                  );
+                },
+              ),
             // Input field for location search
             TextField(
               controller: _locationController,

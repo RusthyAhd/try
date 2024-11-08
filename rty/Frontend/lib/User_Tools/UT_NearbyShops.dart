@@ -379,7 +379,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                                       shopName: provider['name'],
                                       shopId: provider['id'],
                                       shopEmail: provider['email'],
-                                      shopPhone: provider['phone'],
+                                      shopPhone: provider['phone'], product: null,
                                       // products: const [
                                       //   {
                                       //     'title': 'Hammer (New)',
