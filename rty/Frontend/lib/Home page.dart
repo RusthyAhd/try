@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tap_on/Tool_Provider/TP_Dashboard.dart';
 import 'package:tap_on/Tool_Provider/TP_Login.dart';
-import 'package:tap_on/User_Home/Chatbot.dart';
+
+
 import 'package:tap_on/User_Home/LaunchPage.dart';
+import 'package:tap_on/User_Home/AddToCart.dart';
+
+
 import 'package:tap_on/User_Home/UH_Notification.dart';
 import 'package:tap_on/User_Home/UH_Profile.dart';
 import 'package:tap_on/User_Tools/UT_Location.dart';
@@ -82,16 +86,18 @@ class _HomePageState extends State<HomePage> {
                 child: const Icon(Icons.person, color: Colors.white),
               ),
             ),
+
             title: const Text(
               "Profile",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
              trailing: IconButton(
               icon: const Icon(Icons.support_agent, color: Colors.green),
+
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Chatbot()),
+                  MaterialPageRoute(builder: (context) => addtocart()),
                 );
               },
             ),

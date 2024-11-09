@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:tap_on/User_Home/AddToCart.dart';
 import 'package:tap_on/User_Tools/UT_ToolRequest.dart';
-// Replace with actual import for UT_ToolRequest
 import 'package:url_launcher/url_launcher.dart';
 
 class ToolDetails extends StatelessWidget {
@@ -11,9 +11,10 @@ class ToolDetails extends StatelessWidget {
   final String description;
   final String shopPhone;
   final String shopEmail;
-  final dynamic product; // Adjust type if product has a specific class type
+  final dynamic product;
 
-  const ToolDetails({super.key, 
+  const ToolDetails({
+    super.key,
     required this.title,
     required this.image,
     required this.price,
@@ -72,47 +73,46 @@ class ToolDetails extends StatelessWidget {
                 SizedBox(height: 16),
                 SizedBox(
                   width: screenWidth,
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),                
-                  ),
-                  
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.06,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.06,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          price,
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.05,
-                            color: Colors.green,
-                            fontWeight: FontWeight.w600,
+                          SizedBox(height: 8),
+                          Text(
+                            price,
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.05,
+                              color: Colors.green,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          description,
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.04,
-                            color: Colors.black54,
-                            height: 1.5,
+                          SizedBox(height: 16),
+                          Text(
+                            description,
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              color: Colors.black54,
+                              height: 1.5,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
                 ),
                 SizedBox(height: 16),
                 Column(
@@ -136,6 +136,29 @@ class ToolDetails extends StatelessWidget {
                         textStyle: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
                       ),
                       child: Text('Request'),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        Cart.addToCart(CartItem(
+                          name: title,
+                          category: '',
+                          price: double.parse(price),
+                          imageUrl: image,
+                          tag: '',
+                          quantity: 1,
+                          shopEmail: shopEmail,
+                          product: product,
+                        ));
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.yellow,
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 15),
+                        textStyle: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+                      ),
+                      child: Text('AddToCart'),
                     ),
                     SizedBox(height: 20),
                     Row(
