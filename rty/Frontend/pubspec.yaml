@@ -89,6 +89,7 @@ flutter:
   assets:
   - assets/images/
   - assets/images/service_image.jpg
+  - assets/images/baby.jpg
   - .env
  
 

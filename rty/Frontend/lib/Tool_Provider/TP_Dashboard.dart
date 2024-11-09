@@ -135,7 +135,7 @@ class _TP_DashboardState extends State<TP_Dashboard> {
             icon: const Icon(Icons.home),
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const HomePage()));
+                  MaterialPageRoute(builder: (context) => HomePage()));
             },
           ),
         ],
