@@ -106,14 +106,14 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
         title: Text(
           '${widget.shopName} Products',
           style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
         ),
-        backgroundColor: Colors.orangeAccent,
+        backgroundColor: Colors.green,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.orangeAccent, Colors.yellow[700]!],
+            colors: [Color.fromARGB(255, 47, 221, 105), Color.fromARGB(255, 17, 202, 79), Color.fromARGB(255, 45, 251, 114), const Color.fromARGB(255, 45, 251, 182)!],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -121,7 +121,49 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+                Stack(
+                children: [
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      image: DecorationImage(
+                        image: AssetImage('assets/images/b.jpg'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+              Positioned(
+                    left: 16,
+                    bottom: 16,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Our New Products",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // Handle "View More" button action
+                          },
+                          child: Text(
+                            "VIEW MORE",
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
               Expanded(
                 child: ListView.builder(
                   itemCount: products.length,

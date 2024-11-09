@@ -142,7 +142,7 @@ class _UT_LocationState extends State<UT_Location> {
                 label: Text('Use My Current Location'),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  backgroundColor: Colors.amber,
+                  backgroundColor: Colors.green,
                 ),
               ),
             ),
@@ -266,10 +266,10 @@ class _UT_LocationState extends State<UT_Location> {
                   //         builder: (context) => UT_NearbyShops()));
                 },
                 icon: Icon(Icons.search),
-                label: Text('Find Tool'),
+                label: Text('Find Shops Near Me '),
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 15),
-                  backgroundColor: Colors.amber,
+                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 20),
+                  backgroundColor: Colors.green[600]!,
                 ),
               ),
             ),

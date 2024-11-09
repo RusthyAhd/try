@@ -158,16 +158,19 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
       // Applying a Gradient Background
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.orangeAccent, Colors.yellow[700]!],
+                   gradient: LinearGradient(
+            colors: [Color.fromARGB(255, 47, 221, 105), Color.fromARGB(255, 17, 202, 79), Color.fromARGB(255, 45, 251, 114), const Color.fromARGB(255, 45, 251, 182)!],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
+        
         child: Column(
+          
           children: [
             // AppBar with Custom Styling
             SafeArea(
+             
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 16.0, horizontal: 2),
@@ -190,6 +193,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
+                        
                       ),
                     ),
                     SizedBox(width: 30),
