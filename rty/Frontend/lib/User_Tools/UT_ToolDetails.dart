@@ -6,23 +6,33 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ToolDetails extends StatelessWidget {
   final String title;
-  final String image;
   final String price;
+  final String image;
   final String description;
-  final String shopPhone;
   final String shopEmail;
-  final dynamic product;
+  final String shopPhone;
+  final int qty;
+  final String availability;
+  final List<String> availableDays;
+  final String availableHours;
 
-  const ToolDetails({
-    super.key,
+  final Map<String, dynamic> product;
+
+  ToolDetails({
+    Key? key,
     required this.title,
-    required this.image,
     required this.price,
+    required this.image,
     required this.description,
-    required this.shopPhone,
     required this.shopEmail,
+    required this.shopPhone,
     required this.product,
-  });
+  }) : 
+    qty = int.parse(product['quantity'] ?? '0'),
+    availability = product['availability'] ?? 'N/A',
+    availableDays = List<String>.from(product['available_days'] ?? []),
+    availableHours = product['available_hours'] ?? 'N/A',
+    super(key: key);
 
   bool isBase64(String str) {
     try {
@@ -85,7 +95,8 @@ class ToolDetails extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 16),
-                SizedBox(
+                Container(
+                  color: Colors.black87,
                   width: screenWidth,
                   child: Card(
                     shape: RoundedRectangleBorder(
@@ -100,29 +111,72 @@ class ToolDetails extends StatelessWidget {
                           Text(
                             title,
                             style: TextStyle(
-                              fontSize: screenWidth * 0.06,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
                             ),
                           ),
                           SizedBox(height: 8),
                           Text(
-                            price,
+                            description,
                             style: TextStyle(
-                              fontSize: screenWidth * 0.05,
-                              color: Colors.green,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Price: LKR $price',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                              ),
+                              Text(
+                                'Quantity: $qty',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Status: $availability',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: availability == 'Available' ? Colors.green : Colors.red,
                             ),
                           ),
                           SizedBox(height: 16),
                           Text(
-                            description,
+                            'Available Days:',
                             style: TextStyle(
-                              fontSize: screenWidth * 0.04,
-                              color: Colors.black54,
-                              height: 1.5,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
+                          Wrap(
+                            spacing: 8,
+                            children: availableDays.map((day) => Chip(
+                              label: Text(day),
+                              backgroundColor: Colors.green[100],
+                            )).toList(),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Working Hours: $availableHours',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          // Contact information and other existing widgets...
                         ],
                       ),
                     ),
