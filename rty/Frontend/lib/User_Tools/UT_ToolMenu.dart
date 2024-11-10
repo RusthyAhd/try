@@ -119,7 +119,7 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color.fromARGB(255, 47, 221, 105), Color.fromARGB(255, 17, 202, 79), Color.fromARGB(255, 45, 251, 114), const Color.fromARGB(255, 45, 251, 182)!],
+            colors: [Color.fromARGB(255, 47, 221, 105), Color.fromARGB(255, 17, 202, 79), Color.fromARGB(255, 45, 251, 114), const Color.fromARGB(255, 45, 251, 182)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
