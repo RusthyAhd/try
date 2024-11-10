@@ -41,7 +41,8 @@ class ToolDetails extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           title,
-          style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.orangeAccent,
       ),
@@ -62,11 +63,24 @@ class ToolDetails extends StatelessWidget {
                 Center(
                   child: Hero(
                     tag: title,
-                    child: Image(
-                      image: isBase64(image) ? MemoryImage(base64Decode(image)) : AssetImage('assets/placeholder.png') as ImageProvider,
-                      height: screenWidth * 0.6,
-                      width: screenWidth * 0.6,
-                      fit: BoxFit.cover,
+                    child: Container(
+                      padding: EdgeInsets.all(8.0),
+                      height: screenWidth * 0.9, // Adjust padding as needed
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black, // Frame color
+                          width: 2.0,
+                        ),
+                      ),
+                      child: Image(
+                        image: isBase64(image)
+                            ? MemoryImage(base64Decode(image))
+                            : AssetImage('assets/placeholder.png')
+                                as ImageProvider,
+                        height: screenWidth * 0.1,
+                        width: screenWidth * 0.6,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
@@ -132,8 +146,10 @@ class ToolDetails extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.yellow,
-                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 15),
-                        textStyle: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.1, vertical: 15),
+                        textStyle: TextStyle(
+                            fontSize: screenWidth * 0.04, color: Colors.white),
                       ),
                       child: Text('Request'),
                     ),
@@ -155,8 +171,10 @@ class ToolDetails extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.yellow,
-                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1, vertical: 15),
-                        textStyle: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.1, vertical: 15),
+                        textStyle: TextStyle(
+                            fontSize: screenWidth * 0.04, color: Colors.white),
                       ),
                       child: Text('AddToCart'),
                     ),
@@ -169,7 +187,8 @@ class ToolDetails extends StatelessWidget {
                               launchUrl(Uri.parse('tel:$shopPhone'));
                             },
                             icon: Icon(Icons.phone, color: Colors.black),
-                            label: Text('Call', style: TextStyle(color: Colors.black)),
+                            label: Text('Call',
+                                style: TextStyle(color: Colors.black)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber,
                               side: BorderSide(color: Colors.black),
@@ -183,7 +202,8 @@ class ToolDetails extends StatelessWidget {
                               launchUrl(Uri.parse('sms:$shopPhone'));
                             },
                             icon: Icon(Icons.message, color: Colors.black),
-                            label: Text('Message', style: TextStyle(color: Colors.black)),
+                            label: Text('Message',
+                                style: TextStyle(color: Colors.black)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber,
                               side: BorderSide(color: Colors.black),
