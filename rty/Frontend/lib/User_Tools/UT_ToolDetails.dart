@@ -61,7 +61,7 @@ class ToolDetails extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Price:',
+                  'Original Price:',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
                 Text(
@@ -107,7 +107,7 @@ class ToolDetails extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Final Price:',
+                    'Last Amount:',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
