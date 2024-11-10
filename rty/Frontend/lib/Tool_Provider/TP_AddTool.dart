@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,16 +28,13 @@ class _TP_AddToolState extends State<TP_AddTool> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _qytController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+
+
   final TextEditingController _discountController = TextEditingController();
 
+
   final List<String> weekdays = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
   ];
   List<String> selectedWeekdays = [];
 
@@ -115,14 +111,16 @@ class _TP_AddToolState extends State<TP_AddTool> {
 
       final toolData = {
         'title': _nameController.text,
+
         'description': _descriptionController.text,
         'pic': _image != null ? base64Encode(await _image!.readAsBytes()) : '',
         'qty': int.parse(_qytController.text),
         'item_price': double.parse(_priceController.text),
         'discount': double.parse(_discountController.text),
         'availability': 'Available',
+
         'available_days': selectedWeekdays,
-        'available_hours': '${startTime!.format(context)} - ${endTime!.format(context)}',
+        'available_hours': '${startTime?.format(context) ?? 'Not Set'} - ${endTime?.format(context) ?? 'Not Set'}',
       };
 
       final response = await http.post(
@@ -236,6 +234,8 @@ class _TP_AddToolState extends State<TP_AddTool> {
       maxLines: maxLines,
       keyboardType: inputType,
     );
+
+
   } 
  
   Widget _buildImagePicker() {
@@ -266,8 +266,12 @@ class _TP_AddToolState extends State<TP_AddTool> {
                     ),
                   ),
           ),
+
         ),
-      ],
+        child: _image == null
+            ? const Center(child: Text('image selected'))
+            : Image.file(_image!, fit: BoxFit.cover),
+      ),
     );
   }
 
@@ -288,21 +292,15 @@ class _TP_AddToolState extends State<TP_AddTool> {
       children: [
         RadioListTile(
           title: const Text("Available"),
-          value: 1,
-          groupValue: 1,
-          onChanged: (value) {},
-        ),
-        RadioListTile(
-          title: const Text("Sold out for today"),
-          value: 2,
-          groupValue: 1,
-          onChanged: (value) {},
+          value: "Available",
+          groupValue: availability,
+          onChanged: (value) => setState(() => availability = value as String),
         ),
         RadioListTile(
           title: const Text("Unavailable"),
-          value: 3,
-          groupValue: 1,
-          onChanged: (value) {},
+          value: "Unavailable",
+          groupValue: availability,
+          onChanged: (value) => setState(() => availability = value as String),
         ),
       ],
     );

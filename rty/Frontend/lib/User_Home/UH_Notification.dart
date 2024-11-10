@@ -135,7 +135,7 @@ class _UH_NotificationState extends State<UH_Notification> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.yellow[700],
+          backgroundColor: Colors.green,
           title: const Text("Notification Page"),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),

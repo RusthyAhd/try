@@ -14,6 +14,7 @@ import 'package:tap_on/Tool_Provider/TP_Notification.dart';
 import 'package:tap_on/Tool_Provider/TP_Profile.dart';
 import 'package:tap_on/Tool_Provider/TP_ToolManager.dart';
 import 'package:http/http.dart' as http;
+import 'package:tap_on/User_Home/UH_EnterNumber.dart';
 
 class TP_Dashboard extends StatefulWidget {
   const TP_Dashboard({super.key});
@@ -110,7 +111,7 @@ class _TP_DashboardState extends State<TP_Dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Colors.green[700],
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
@@ -130,15 +131,7 @@ class _TP_DashboardState extends State<TP_Dashboard> {
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => HomePage()));
-            },
-          ),
-        ],
+      
       ),
       drawer: Drawer(
         child: ListView(
@@ -147,7 +140,7 @@ class _TP_DashboardState extends State<TP_Dashboard> {
             // Drawer Header with logo and shop name
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.yellow[700],
+                color: Colors.green[700],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,7 +190,7 @@ class _TP_DashboardState extends State<TP_Dashboard> {
             // Menu Manager button
             ListTile(
               leading: Icon(Icons.add),
-              title: Text('Add Tool'),
+              title: Text('Add Product'),
               onTap: () {
                 Navigator.push(
                     context,
@@ -259,14 +252,14 @@ class _TP_DashboardState extends State<TP_Dashboard> {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 prefs.remove('toolProviderId');
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => HomePage()));
+                    MaterialPageRoute(builder: (context) => EnterNumber()));
 
                 // Handle Log Out button press
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: const Color.fromARGB(255, 8, 0, 0),
-                backgroundColor: const Color.fromARGB(255, 219, 135, 9),
-                minimumSize: Size(70, 50),
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.red,
+        
               ),
               child: Text('Log Out'),
             ),
@@ -323,7 +316,7 @@ class _TP_DashboardState extends State<TP_Dashboard> {
           );
         },
         backgroundColor:
-            const Color.fromARGB(255, 255, 214, 7), // Color of the button
+            const Color.fromARGB(255, 58, 128, 18), // Color of the button
         child: const Text(
           'Accept',
           style: TextStyle(color: Colors.white),

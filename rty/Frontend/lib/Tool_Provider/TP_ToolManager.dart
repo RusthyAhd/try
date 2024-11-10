@@ -55,15 +55,17 @@ class _TP_ToolManagerState extends State<TP_ToolManager> {
           menuItems.clear();
           for (var tool in tools) {
             menuItems.add({
+
               'id': tool['tool_id'],
               'name': tool['title'], // Changed from 'service' to 'title'
               'description': tool['description'], // Added description
               'price': tool['item_price'],
               'quantity': tool['qty'],
-              'available': tool['availability'] == 'Available',
+              'available': tool['availability'] == 'Available', true : false,
               'image': tool['pic'],
               'available_days': tool['available_days'],
               'available_hours': tool['available_hours'],
+
             });
           }
         });
@@ -169,7 +171,7 @@ class _TP_ToolManagerState extends State<TP_ToolManager> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Colors.green,
         title: Text('Menu Management'),
       ),
       body: Padding(

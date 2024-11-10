@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tap_on/Home%20page.dart';
 import 'package:tap_on/Tool_Provider/TP_Dashboard.dart';
 import 'package:tap_on/Tool_Provider/TP_Register.dart';
+import 'package:tap_on/User_Home/UH_EnterNumber.dart';
 import 'package:tap_on/widgets/Loading.dart';
 import 'package:http/http.dart' as http;
 
@@ -121,13 +122,13 @@ class _TP_LoginState extends State<TP_Login> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HomePage()),
+                MaterialPageRoute(builder: (context) => EnterNumber()),
               );
               // Action when the button is pressed
             },
           ),
           title: const Text('TapOn'),
-          backgroundColor: Colors.amber[700],
+          backgroundColor: Colors.green,
           elevation: 0,
         ),
         body: Padding(
@@ -167,7 +168,7 @@ class _TP_LoginState extends State<TP_Login> {
                   //     MaterialPageRoute(builder: (context) => TP_Dashboard()));
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber[700],
+                  backgroundColor: Colors.green[700],
                   padding: EdgeInsets.symmetric(vertical: 15),
                   textStyle: TextStyle(fontSize: 18),
                 ),
@@ -184,7 +185,7 @@ class _TP_LoginState extends State<TP_Login> {
                   child: Text(
                     'Forgot password?',
                     style: TextStyle(
-                      color: Colors.amber[700],
+                      color: Colors.green[700],
                     ),
                   ),
                 ),
@@ -203,7 +204,7 @@ class _TP_LoginState extends State<TP_Login> {
                   textStyle: TextStyle(
                     fontSize: 18,
                   ),
-                  side: BorderSide(color: Colors.amber),
+                  side: BorderSide(color: Colors.green),
                 ),
                 child: Text('Register as Shop Owner'),
               ),

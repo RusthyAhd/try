@@ -5,8 +5,8 @@ import 'package:tap_on/Tool_Provider/TP_Login.dart';
 
 
 import 'package:tap_on/User_Home/LaunchPage.dart';
-import 'package:tap_on/User_Home/AddToCart.dart';
 
+import 'package:tap_on/User_Home/UH_EnterNumber.dart';
 
 import 'package:tap_on/User_Home/UH_Notification.dart';
 import 'package:tap_on/User_Home/UH_Profile.dart';
@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> {
          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const LaunchPage()));
+                MaterialPageRoute(builder: (context) => const EnterNumber()));
           },
         ),
         actions: [
@@ -231,53 +231,25 @@ class _HomePageState extends State<HomePage> {
           
         ],
       ),
- bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        color: Colors.green[700],
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                            
-        child: Row(
-          
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            TextButton(
-              onPressed: () {
-                // Handle User button press
-              },
-              child: const Row(
-               
-                children: [
-                  Icon(Icons.person, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text('User',style: TextStyle(color: Colors.white)),
-                ],
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                final providerId = prefs.getString('toolProviderId');
-                if (providerId == null || providerId == '') {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => TP_Login()));
-                } else if (providerId != null || providerId != '') {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => TP_Dashboard()));
-                }
-              },
-              child: const Row(
-                children: [
-                  Icon(Icons.store, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text('Tool Provider',style: TextStyle(color: Colors.white)),
-                ],
-              ),
-            ),
-          ],
+ 
+  
+    bottomNavigationBar: BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      color: Colors.green[700],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('rishaf', style: TextStyle(color: Colors.white)),
+        Text(
+          'Your one-stop shop for everything!',
+          style: TextStyle(color: Colors.white, fontSize: 16),
         ),
+        ],
       ),
- ),
+      ),
+    ),
     );
   }
 }
