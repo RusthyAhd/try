@@ -13,6 +13,8 @@ import 'package:tap_on/User_Home/UH_Profile.dart';
 import 'package:tap_on/User_Tools/UT_Location.dart';
 import 'dart:async';
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -284,7 +286,7 @@ class ServiceCard extends StatelessWidget {
   final String? imagePath;
   final VoidCallback onTap;
 
-  const ServiceCard({
+  const ServiceCard({super.key, 
     required this.label,
     required this.onTap,
     this.imagePath,
@@ -338,7 +340,7 @@ class AdvertisementCard extends StatelessWidget {
   final String description;
   final String imagePath;
 
-  const AdvertisementCard({
+  const AdvertisementCard({super.key, 
     required this.backgroundColor,
     required this.icon,
     required this.title,
