@@ -15,6 +15,7 @@ class ToolDetails extends StatelessWidget {
   final String availability;
   final List<String> availableDays;
   final String availableHours;
+  final double discount;
 
   final Map<String, dynamic> product;
 
@@ -32,6 +33,7 @@ class ToolDetails extends StatelessWidget {
     availability = product['availability'] ?? 'N/A',
     availableDays = List<String>.from(product['available_days'] ?? []),
     availableHours = product['available_hours'] ?? 'N/A',
+    discount = double.parse(product['discount'] ?? '0'),
     super(key: key);
 
   bool isBase64(String str) {
@@ -41,6 +43,88 @@ class ToolDetails extends StatelessWidget {
     } catch (_) {
       return false;
     }
+  }
+
+  Widget _buildPriceCard() {
+    final originalPrice = double.parse(price);
+    final discountedPrice = originalPrice - (originalPrice * discount / 100);
+
+    return Card(
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Price:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                Text(
+                  'LKR $price',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    decoration: discount > 0 ? TextDecoration.lineThrough : null,
+                    color: discount > 0 ? Colors.grey : Colors.black,
+                  ),
+                ),
+              ],
+            ),
+            if (discount > 0) ...[
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.discount, color: Colors.green[700]),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Discount:',
+                        style: TextStyle(
+                          color: Colors.green[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '${discount.toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      color: Colors.green[700],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Final Price:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'LKR ${discountedPrice.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green[700],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -124,17 +208,11 @@ class ToolDetails extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 16),
+                          _buildPriceCard(),
+                          SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'Price: LKR $price',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
                               Text(
                                 'Quantity: $qty',
                                 style: TextStyle(

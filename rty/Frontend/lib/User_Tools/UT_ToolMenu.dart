@@ -73,12 +73,13 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
               'id': tool['tool_id'] ?? 'N/A',
               'title': tool['title'] ?? 'Service Name',
               'price': tool['item_price'].toString(),
+              'discount': tool['discount']?.toString() ?? '0', // Add discount
               'quantity': tool['qty'].toString(),
               'image': tool['pic'] ?? '',
               'description': tool['description'] ?? tool['title'],
-              "availability": tool['availability'] ?? 'N/A',
-              "available_days": tool['available_days'] ?? [],
-              "available_hours": tool['available_hours'] ?? 'N/A',
+              'availability': tool['availability'] ?? 'N/A',
+              'available_days': tool['available_days'] ?? [],
+              'available_hours': tool['available_hours'] ?? 'N/A',
             });
           }
         });
