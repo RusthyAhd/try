@@ -29,6 +29,7 @@ class _TP_AddToolState extends State<TP_AddTool> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _qytController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _discountController = TextEditingController();
 
   final List<String> weekdays = [
     'Monday',
@@ -92,6 +93,7 @@ class _TP_AddToolState extends State<TP_AddTool> {
         _descriptionController.text.isEmpty ||
         _qytController.text.isEmpty ||
         _priceController.text.isEmpty ||
+        _discountController.text.isEmpty ||
         _image == null ||
         selectedWeekdays.isEmpty ||
         startTime == null ||
@@ -117,6 +119,7 @@ class _TP_AddToolState extends State<TP_AddTool> {
         'pic': _image != null ? base64Encode(await _image!.readAsBytes()) : '',
         'qty': int.parse(_qytController.text),
         'item_price': double.parse(_priceController.text),
+        'discount': double.parse(_discountController.text),
         'availability': 'Available',
         'available_days': selectedWeekdays,
         'available_hours': '${startTime!.format(context)} - ${endTime!.format(context)}',
@@ -188,7 +191,7 @@ class _TP_AddToolState extends State<TP_AddTool> {
            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTextField(_nameController, 'Name *'),
+              _buildTextField(_nameController, 'Name'),
               const SizedBox(height: 16),
               _buildTextField(
                 _descriptionController,
@@ -196,16 +199,15 @@ class _TP_AddToolState extends State<TP_AddTool> {
                 maxLength: 280,
                 maxLines: 3,
               ),
-              const SizedBox(height: 16),
-              _buildConditionSelector(),
-              const SizedBox(height: 16),
-              _buildCategoryChips(),
+
               const SizedBox(height: 16),
               _buildImagePicker(),
               const SizedBox(height: 16),
               _buildTextField(_qytController, 'Limit(available quantity)', inputType: TextInputType.number),
               const SizedBox(height: 16),
               _buildTextField(_priceController, 'Price', inputType: TextInputType.number),
+              const SizedBox(height: 16),
+              _buildTextField(_discountController, 'Discount', inputType: TextInputType.number),
               const SizedBox(height: 16),
               _buildAvailability(),
               const SizedBox(height: 16),
@@ -234,52 +236,8 @@ class _TP_AddToolState extends State<TP_AddTool> {
       maxLines: maxLines,
       keyboardType: inputType,
     );
-  }
-
-  Widget _buildConditionSelector() {
-    return Row(
-      children: [
-        Radio<bool>(
-          value: true,
-          groupValue: isNew,
-          onChanged: (value) => setState(() => isNew = value!),
-        ),
-        const Text('New'),
-        Radio<bool>(
-          value: false,
-          groupValue: isNew,
-          onChanged: (value) => setState(() => isNew = value!),
-        ),
-        const Text('Used'),
-      ],
-    );
-  }
-
-  Widget _buildCategoryChips() {
-    return Wrap(
-      spacing: 8.0,
-      children: [
-        _buildChoiceChip('Plumbing'),
-        _buildChoiceChip('Electrical'),
-        _buildChoiceChip('Carpentry Tools'),
-        _buildChoiceChip('Painting tool'),
-        _buildChoiceChip('Gardening tool'),
-        _buildChoiceChip('Repairing tool'),
-        _buildChoiceChip('Building tool'),
-        _buildChoiceChip('Phone accessories'),
-        _buildChoiceChip('Mechanical tool'),
-      ],
-    );
-  }
-
-  Widget _buildChoiceChip(String category) {
-    return ChoiceChip(
-      label: Text(category),
-      selected: selectedCategory == category,
-      onSelected: (selected) => setState(() => selectedCategory = category),
-    );
-  }
-
+  } 
+ 
   Widget _buildImagePicker() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,6 +270,18 @@ class _TP_AddToolState extends State<TP_AddTool> {
       ],
     );
   }
+
+  Widget _buildPrice() {
+    return _buildTextField(_priceController, 'Price', inputType: TextInputType.number);
+  }
+
+  Widget _buildDiscount() {
+    return _buildTextField(_discountController, 'Discount', inputType: TextInputType.number);
+  }
+
+ 
+
+    
 
   Widget _buildAvailability() {
     return Column(

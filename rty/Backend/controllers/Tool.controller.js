@@ -6,7 +6,7 @@ exports.addNewTool = async (req, res, next) => {
 
     try {
 
-        const { title, description, pic, qty, item_price, availability, available_days, available_hours } = req.body;
+        const { title, description, pic, qty, item_price, discount, availability, available_days, available_hours } = req.body;
         const { shop_email } = req.params;
 
         if (!shop_email || !title || !description || !pic || !qty || !item_price || !availability || !available_days || !available_hours || available_days.length === 0) {
@@ -41,8 +41,9 @@ exports.addNewTool = async (req, res, next) => {
             title,
             description, // Add this
             pic,
-            qty,
-            item_price,
+            qty: Number(qty),
+            item_price: Number(item_price),
+            discount: Number(discount || 0),
             availability,
             available_days,
             available_hours,
@@ -168,7 +169,7 @@ exports.getAllToolById = async (req, res, next) => {
 exports.updateTool = async (req, res, next) => {
 
     const { tool_id } = req.params;
-    const { title, pic, qty, item_price, availability, available_days, available_hours } = req.body;
+    const { title, pic, qty, item_price, discount, availability, available_days, available_hours } = req.body;
 
     try {
         if (!tool_id){
@@ -200,6 +201,7 @@ exports.updateTool = async (req, res, next) => {
                 pic: pic || existingTool.pic,
                 qty: qty || existingTool.qty,
                 item_price: item_price || existingTool.item_price,
+                discount: discount || existingTool.discount,
                 availability: availability || existingTool.availability,
                 available_days: available_days || existingTool.available_days,
                 available_hours: available_hours || existingTool.available_hours
