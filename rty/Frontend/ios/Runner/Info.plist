@@ -50,6 +50,11 @@
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>We need access to your location to provide personalized experiences based on your position.</string>
     
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app needs access to photo library to pick images</string>
+    <key>NSCameraUsageDescription</key>
+    <string>This app needs camera access to take photos</string>
+    
     <key>io.flutter.embedded_views_preview</key>
     <true/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

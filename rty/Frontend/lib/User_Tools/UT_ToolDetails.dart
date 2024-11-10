@@ -65,7 +65,7 @@ class ToolDetails extends StatelessWidget {
                     tag: title,
                     child: Container(
                       padding: EdgeInsets.all(8.0),
-                      height: screenWidth * 0.9, // Adjust padding as needed
+                      height: screenWidth * 0.92, // Adjust padding as needed
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: Colors.black, // Frame color
@@ -153,7 +153,7 @@ class ToolDetails extends StatelessWidget {
                       ),
                       child: Text('Request'),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     ElevatedButton(
                       onPressed: () {
                         Cart.addToCart(CartItem(
@@ -178,7 +178,7 @@ class ToolDetails extends StatelessWidget {
                       ),
                       child: Text('AddToCart'),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
@@ -207,8 +207,12 @@ class ToolDetails extends StatelessWidget {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.amber,
                               side: BorderSide(color: Colors.black),
+                              
                             ),
+
+                            
                           ),
+                      
                         ),
                       ],
                     ),
