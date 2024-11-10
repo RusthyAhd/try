@@ -61,7 +61,7 @@ class _TP_ToolManagerState extends State<TP_ToolManager> {
               'description': tool['description'], // Added description
               'price': tool['item_price'],
               'quantity': tool['qty'],
-              'available': tool['availability'] == 'Available', true : false,
+              'available': tool['availability'] == 'Available', 
               'image': tool['pic'],
               'available_days': tool['available_days'],
               'available_hours': tool['available_hours'],
