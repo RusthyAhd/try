@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,15 +27,10 @@ class _TP_AddToolState extends State<TP_AddTool> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _qytController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  String availability = "Available"; // Track availability status
 
   final List<String> weekdays = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
   ];
   List<String> selectedWeekdays = [];
 
@@ -81,9 +75,9 @@ class _TP_AddToolState extends State<TP_AddTool> {
         'pic': _image != null ? base64Encode(_image!.readAsBytesSync()) : 'N/A',
         'qty': _qytController.text,
         'item_price': _priceController.text,
-        'availability': 'Available',
+        'availability': availability, // Use selected availability status
         'available_days': selectedWeekdays,
-        'available_hours': '${startTime!.format(context)} - ${endTime!.format(context)}',
+        'available_hours': '${startTime?.format(context) ?? 'Not Set'} - ${endTime?.format(context) ?? 'Not Set'}',
       };
 
       final response = await http.post(
@@ -149,10 +143,6 @@ class _TP_AddToolState extends State<TP_AddTool> {
                 maxLines: 3,
               ),
               const SizedBox(height: 16),
-              _buildConditionSelector(),
-              const SizedBox(height: 16),
-              _buildCategoryChips(),
-              const SizedBox(height: 16),
               _buildImagePicker(),
               const SizedBox(height: 16),
               _buildTextField(_qytController, 'Limit(available quantity)', inputType: TextInputType.number),
@@ -187,65 +177,20 @@ class _TP_AddToolState extends State<TP_AddTool> {
     );
   }
 
-  Widget _buildConditionSelector() {
-    return Row(
-      children: [
-        Radio<bool>(
-          value: true,
-          groupValue: isNew,
-          onChanged: (value) => setState(() => isNew = value!),
-        ),
-        const Text('New'),
-        Radio<bool>(
-          value: false,
-          groupValue: isNew,
-          onChanged: (value) => setState(() => isNew = value!),
-        ),
-        const Text('Used'),
-      ],
-    );
-  }
-
-  Widget _buildCategoryChips() {
-    return Wrap(
-      spacing: 8.0,
-      children: [
-        _buildChoiceChip('Plumbing'),
-        _buildChoiceChip('Electrical'),
-        _buildChoiceChip('Carpentry Tools'),
-        _buildChoiceChip('Painting tool'),
-        _buildChoiceChip('Gardening tool'),
-        _buildChoiceChip('Repairing tool'),
-        _buildChoiceChip('Building tool'),
-        _buildChoiceChip('Phone accessories'),
-        _buildChoiceChip('Mechanical tool'),
-      ],
-    );
-  }
-
-  Widget _buildChoiceChip(String category) {
-    return ChoiceChip(
-      label: Text(category),
-      selected: selectedCategory == category,
-      onSelected: (selected) => setState(() => selectedCategory = category),
-    );
-  }
-
   Widget _buildImagePicker() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("Item Image"),
-        GestureDetector(
-          onTap: _pickImage,
-          child: Container(
-            width: 150,
-            height: 150,
-            color: Colors.grey[300],
-            child: _image == null ? const Icon(Icons.camera_alt) : Image.file(_image!),
-          ),
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        width: 100,
+        height: 100,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(8),
         ),
-      ],
+        child: _image == null
+            ? const Center(child: Text('image selected'))
+            : Image.file(_image!, fit: BoxFit.cover),
+      ),
     );
   }
 
@@ -254,21 +199,15 @@ class _TP_AddToolState extends State<TP_AddTool> {
       children: [
         RadioListTile(
           title: const Text("Available"),
-          value: 1,
-          groupValue: 1,
-          onChanged: (value) {},
-        ),
-        RadioListTile(
-          title: const Text("Sold out for today"),
-          value: 2,
-          groupValue: 1,
-          onChanged: (value) {},
+          value: "Available",
+          groupValue: availability,
+          onChanged: (value) => setState(() => availability = value as String),
         ),
         RadioListTile(
           title: const Text("Unavailable"),
-          value: 3,
-          groupValue: 1,
-          onChanged: (value) {},
+          value: "Unavailable",
+          groupValue: availability,
+          onChanged: (value) => setState(() => availability = value as String),
         ),
       ],
     );

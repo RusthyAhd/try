@@ -54,7 +54,7 @@ class _TP_ToolManagerState extends State<TP_ToolManager> {
           for (var tool in tools) {
             menuItems.add({
               'id': tool['tool_id'] ?? 0,
-              'name': tool['service'] ?? 'Service Name',
+              'name': tool['service'] ?? 'service',
               'price': tool['item_price'] ?? 0.0,
               'quantity': tool['qty'] ?? 0,
               'available': tool['availability'] == 'Available' ? true : false,
@@ -164,7 +164,7 @@ class _TP_ToolManagerState extends State<TP_ToolManager> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Colors.green,
         title: Text('Menu Management'),
       ),
       body: Padding(
