@@ -5,6 +5,7 @@ const toolSchema = new mongoose.Schema({
     tool_id: { type: String, required: true },
     shop_id: { type: String, required: true },
     title: { type: String, required: true },
+    description: { type: String, required: true }, // Add description field
     pic: { type: String, required: true },
     qty: { type: Number, required: true },
     item_price: { type: Number, required: true },

@@ -6,10 +6,10 @@ exports.addNewTool = async (req, res, next) => {
 
     try {
 
-        const { title, pic, qty, item_price, availability, available_days, available_hours } = req.body;
+        const { title, description, pic, qty, item_price, availability, available_days, available_hours } = req.body;
         const { shop_email } = req.params;
 
-        if (!shop_email || !title || !pic || !qty || !item_price || !availability || !available_days || !available_hours || available_days.length === 0) {
+        if (!shop_email || !title || !description || !pic || !qty || !item_price || !availability || !available_days || !available_hours || available_days.length === 0) {
             return res.status(400).send(
                 new CustomResponse(
                     400,
@@ -39,6 +39,7 @@ exports.addNewTool = async (req, res, next) => {
             tool_id,
             shop_id:shopOwner._id,
             title,
+            description, // Add this
             pic,
             qty,
             item_price,
