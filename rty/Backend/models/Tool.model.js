@@ -9,6 +9,7 @@ const toolSchema = new mongoose.Schema({
     pic: { type: String, required: true },
     qty: { type: Number, required: true },
     item_price: { type: Number, required: true },
+    discount: { type: Number, default: 0 }, 
     availability: { type: String,enum: ['Available', 'Unavailable', 'Sold_out'], required: true },
     available_days: { type: [String], required: true },
     available_hours: { type: String, required: true },
