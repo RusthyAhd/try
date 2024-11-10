@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tap_on/Tool_Provider/TP_Dashboard.dart';
 import 'package:tap_on/Tool_Provider/TP_Login.dart';
-import 'package:tap_on/User_Home/Chatbot.dart';
+
+
 import 'package:tap_on/User_Home/LaunchPage.dart';
+
 import 'package:tap_on/User_Home/UH_EnterNumber.dart';
+
 import 'package:tap_on/User_Home/UH_Notification.dart';
 import 'package:tap_on/User_Home/UH_Profile.dart';
 import 'package:tap_on/User_Tools/UT_Location.dart';
 import 'dart:async';
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -83,16 +88,18 @@ class _HomePageState extends State<HomePage> {
                 child: const Icon(Icons.person, color: Colors.white),
               ),
             ),
+
             title: const Text(
               "Profile",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
              trailing: IconButton(
               icon: const Icon(Icons.support_agent, color: Colors.green),
+
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Chatbot()),
+                  MaterialPageRoute(builder: (context) => addtocart()),
                 );
               },
             ),
@@ -251,7 +258,7 @@ class ServiceCard extends StatelessWidget {
   final String? imagePath;
   final VoidCallback onTap;
 
-  const ServiceCard({
+  const ServiceCard({super.key, 
     required this.label,
     required this.onTap,
     this.imagePath,
@@ -305,7 +312,7 @@ class AdvertisementCard extends StatelessWidget {
   final String description;
   final String imagePath;
 
-  const AdvertisementCard({
+  const AdvertisementCard({super.key, 
     required this.backgroundColor,
     required this.icon,
     required this.title,

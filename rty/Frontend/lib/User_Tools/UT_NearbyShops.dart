@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -74,7 +75,14 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
       final token =
           prefs.getString('token'); // Get the token from shared preferences
 
-      final coordinates = await getCoordinatesFromCity(widget.userLocation);
+      final coordinates = await getCoordinatesFromCity(widget.userLocation) .timeout(
+          const Duration(seconds: 10),
+          onTimeout: () => throw TimeoutException('Location service timeout'),
+        );
+        if (coordinates == null) {
+      throw Exception('Failed to get coordinates');
+    }
+    
 
       setState(() {
         _latitude = coordinates['latitude'] ?? 6.9271;
@@ -159,7 +167,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
       body: Container(
         decoration: BoxDecoration(
                    gradient: LinearGradient(
-            colors: [Color.fromARGB(255, 47, 221, 105), Color.fromARGB(255, 17, 202, 79), Color.fromARGB(255, 45, 251, 114), const Color.fromARGB(255, 45, 251, 182)!],
+            colors: [Color.fromARGB(255, 47, 221, 105), Color.fromARGB(255, 17, 202, 79), Color.fromARGB(255, 45, 251, 114), const Color.fromARGB(255, 45, 251, 182)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -383,7 +391,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                                       shopName: provider['name'],
                                       shopId: provider['id'],
                                       shopEmail: provider['email'],
-                                      shopPhone: provider['phone'],
+                                      shopPhone: provider['phone'], product: null,
                                       // products: const [
                                       //   {
                                       //     'title': 'Hammer (New)',

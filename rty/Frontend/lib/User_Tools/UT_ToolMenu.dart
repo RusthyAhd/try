@@ -17,7 +17,7 @@ class UT_ToolMenu extends StatefulWidget {
     required this.shopName,
     required this.shopId,
     required this.shopEmail,
-    required this.shopPhone,
+    required this.shopPhone, required product,
   });
 
   @override
@@ -42,6 +42,7 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final baseURL = dotenv.env['BASE_URL'];
       final token = prefs.getString('token');
+      // set the price, image, quantity, description, availability, available_days, available_hours
 
       if (baseURL == null || token == null) {
         QuickAlert.show(
@@ -71,13 +72,14 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
             products.add({
               'id': tool['tool_id'] ?? 'N/A',
               'title': tool['title'] ?? 'Service Name',
-              'price': tool['item_price'].toString() ?? 'N/A',
+              'price': tool['item_price'].toString(),
+              'discount': tool['discount']?.toString() ?? '0', // Add discount
               'quantity': tool['qty'].toString(),
               'image': tool['pic'] ?? '',
               'description': tool['description'] ?? tool['title'],
-              "availability": tool['availability'] ?? 'N/A',
-              "available_days": tool['available_days'] ?? [],
-              "available_hours": tool['available_hours'] ?? 'N/A',
+              'availability': tool['availability'] ?? 'N/A',
+              'available_days': tool['available_days'] ?? [],
+              'available_hours': tool['available_hours'] ?? 'N/A',
             });
           }
         });
@@ -99,6 +101,11 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
     }
   }
 
+    Future<void> saveProductToPreferences(Map<String, dynamic> product) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedProduct', jsonEncode(product));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,7 +120,7 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color.fromARGB(255, 47, 221, 105), Color.fromARGB(255, 17, 202, 79), Color.fromARGB(255, 45, 251, 114), const Color.fromARGB(255, 45, 251, 182)!],
+            colors: [Color.fromARGB(255, 47, 221, 105), Color.fromARGB(255, 17, 202, 79), Color.fromARGB(255, 45, 251, 114), const Color.fromARGB(255, 45, 251, 182)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

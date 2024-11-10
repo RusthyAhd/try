@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tap_on/Tool_Provider/TP_Dashboard.dart';
+import 'package:tap_on/Tool_Provider/TP_ToolManager.dart';
 import 'package:tap_on/widgets/Loading.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,7 +28,10 @@ class _TP_AddToolState extends State<TP_AddTool> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _qytController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-  String availability = "Available"; // Track availability status
+
+
+  final TextEditingController _discountController = TextEditingController();
+
 
   final List<String> weekdays = [
     'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
@@ -53,16 +57,47 @@ class _TP_AddToolState extends State<TP_AddTool> {
   }
 
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+    try {
+      final picker = ImagePicker();
+      final XFile? pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1800,
+        maxHeight: 1800,
+      );
+      
+      if (pickedFile != null) {
+        setState(() {
+          _image = File(pickedFile.path);
+        });
+      } else {
+        print('No image selected.');
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error selecting image: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
   Future<void> handleSaveTool() async {
+    // Validate required fields first
+    if (_nameController.text.isEmpty ||
+        _descriptionController.text.isEmpty ||
+        _qytController.text.isEmpty ||
+        _priceController.text.isEmpty ||
+        _discountController.text.isEmpty ||
+        _image == null ||
+        selectedWeekdays.isEmpty ||
+        startTime == null ||
+        endTime == null) {
+      _showError('All fields are required');
+      return;
+    }
+
     LoadingDialog.show(context);
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -70,12 +105,20 @@ class _TP_AddToolState extends State<TP_AddTool> {
       final token = prefs.getString('token');
       final providerEmail = prefs.getString('toolProviderEmail');
 
+      if (token == null || providerEmail == null) {
+        throw Exception('Authentication error');
+      }
+
       final toolData = {
         'title': _nameController.text,
-        'pic': _image != null ? base64Encode(_image!.readAsBytesSync()) : 'N/A',
-        'qty': _qytController.text,
-        'item_price': _priceController.text,
-        'availability': availability, // Use selected availability status
+
+        'description': _descriptionController.text,
+        'pic': _image != null ? base64Encode(await _image!.readAsBytes()) : '',
+        'qty': int.parse(_qytController.text),
+        'item_price': double.parse(_priceController.text),
+        'discount': double.parse(_discountController.text),
+        'availability': 'Available',
+
         'available_days': selectedWeekdays,
         'available_hours': '${startTime?.format(context) ?? 'Not Set'} - ${endTime?.format(context) ?? 'Not Set'}',
       };
@@ -84,25 +127,35 @@ class _TP_AddToolState extends State<TP_AddTool> {
         Uri.parse('$baseURL/tool/new/$providerEmail'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': '$token',
+          'Authorization': token,
         },
         body: json.encode(toolData),
       );
-      final data = jsonDecode(response.body);
 
-      if (data['status'] == 200) {
+      final responseData = jsonDecode(response.body);
+
+      if (responseData['status'] == 200) {
         LoadingDialog.hide(context);
+        
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tool added successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Navigate back to TP_ToolManager
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => TP_Dashboard()),
+          MaterialPageRoute(builder: (context) =>  TP_ToolManager()),
         );
       } else {
-        LoadingDialog.hide(context);
-        _showError(data['message']);
+        throw Exception(responseData['message']);
       }
     } catch (e) {
       LoadingDialog.hide(context);
-      _showError('Failed to save service details');
+      _showError('Failed to add tool: ${e.toString()}');
     }
   }
 
@@ -128,13 +181,15 @@ class _TP_AddToolState extends State<TP_AddTool> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
+      body: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTextField(_nameController, 'Name *'),
+              _buildTextField(_nameController, 'Name'),
               const SizedBox(height: 16),
               _buildTextField(
                 _descriptionController,
@@ -142,12 +197,15 @@ class _TP_AddToolState extends State<TP_AddTool> {
                 maxLength: 280,
                 maxLines: 3,
               ),
+
               const SizedBox(height: 16),
               _buildImagePicker(),
               const SizedBox(height: 16),
               _buildTextField(_qytController, 'Limit(available quantity)', inputType: TextInputType.number),
               const SizedBox(height: 16),
               _buildTextField(_priceController, 'Price', inputType: TextInputType.number),
+              const SizedBox(height: 16),
+              _buildTextField(_discountController, 'Discount', inputType: TextInputType.number),
               const SizedBox(height: 16),
               _buildAvailability(),
               const SizedBox(height: 16),
@@ -159,6 +217,7 @@ class _TP_AddToolState extends State<TP_AddTool> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -175,17 +234,39 @@ class _TP_AddToolState extends State<TP_AddTool> {
       maxLines: maxLines,
       keyboardType: inputType,
     );
-  }
 
+
+  } 
+ 
   Widget _buildImagePicker() {
-    return GestureDetector(
-      onTap: _pickImage,
-      child: Container(
-        width: 100,
-        height: 100,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Item Image"),
+        GestureDetector(
+          onTap: _pickImage,
+          child: Container(
+            width: 150,
+            height: 150,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: _image == null
+                ? const Center(child: Icon(Icons.camera_alt))
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      _image!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(child: Icon(Icons.error));
+                      },
+                    ),
+                  ),
+          ),
+
         ),
         child: _image == null
             ? const Center(child: Text('image selected'))
@@ -193,6 +274,18 @@ class _TP_AddToolState extends State<TP_AddTool> {
       ),
     );
   }
+
+  Widget _buildPrice() {
+    return _buildTextField(_priceController, 'Price', inputType: TextInputType.number);
+  }
+
+  Widget _buildDiscount() {
+    return _buildTextField(_discountController, 'Discount', inputType: TextInputType.number);
+  }
+
+ 
+
+    
 
   Widget _buildAvailability() {
     return Column(
@@ -248,8 +341,18 @@ class _TP_AddToolState extends State<TP_AddTool> {
   Widget _buildAddButton() {
     return Center(
       child: ElevatedButton(
-        onPressed: handleSaveTool,
-        child: const Text('Add Tool'),
+        onPressed: () {
+          if (_formKey.currentState?.validate() ?? false) {
+            handleSaveTool();
+          } else {
+            _showError('Please fill all required fields');
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.yellow[700],
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+        ),
+        child: const Text('Add Tool', style: TextStyle(color: Colors.black)),
       ),
     );
   }
