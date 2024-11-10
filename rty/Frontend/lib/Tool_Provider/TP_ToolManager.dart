@@ -38,11 +38,13 @@ class _TP_ToolManagerState extends State<TP_ToolManager> {
       final token = prefs.getString('token');
       final providerId = prefs.getString('toolProviderId');
 
-      final response = await http
-          .get(Uri.parse('$baseURL/tool/get/all/$providerId'), headers: {
-        'Content-Type': 'application/json',
-        'Authorization': '$token',
-      });
+      final response = await http.get(
+        Uri.parse('$baseURL/tool/get/all/$providerId'), 
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': '$token',
+        }
+      );
 
       final data = jsonDecode(response.body);
       final status = data['status'];
@@ -53,12 +55,15 @@ class _TP_ToolManagerState extends State<TP_ToolManager> {
           menuItems.clear();
           for (var tool in tools) {
             menuItems.add({
-              'id': tool['tool_id'] ?? 0,
-              'name': tool['service'] ?? 'Service Name',
-              'price': tool['item_price'] ?? 0.0,
-              'quantity': tool['qty'] ?? 0,
-              'available': tool['availability'] == 'Available' ? true : false,
-              'image': tool['pic'] ?? '',
+              'id': tool['tool_id'],
+              'name': tool['title'], // Changed from 'service' to 'title'
+              'description': tool['description'], // Added description
+              'price': tool['item_price'],
+              'quantity': tool['qty'],
+              'available': tool['availability'] == 'Available',
+              'image': tool['pic'],
+              'available_days': tool['available_days'],
+              'available_hours': tool['available_hours'],
             });
           }
         });
