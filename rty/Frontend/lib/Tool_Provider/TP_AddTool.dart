@@ -21,6 +21,7 @@ class _TP_AddToolState extends State<TP_AddTool> {
   final _formKey = GlobalKey<FormState>();
   String? selectedCategory;
   bool isNew = true;
+  String availability = 'Available';
   TimeOfDay? startTime;
   TimeOfDay? endTime;
   File? _image;
@@ -266,13 +267,13 @@ class _TP_AddToolState extends State<TP_AddTool> {
                     ),
                   ),
           ),
-
         ),
-        child: _image == null
-            ? const Center(child: Text('image selected'))
-            : Image.file(_image!, fit: BoxFit.cover),
-      ),
+      ],
     );
+
+        
+      
+    
   }
 
   Widget _buildPrice() {
