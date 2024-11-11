@@ -4,8 +4,10 @@ import 'package:flutter/material.dart'; // Importing Flutter material package fo
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importing flutter_dotenv for environment variables
 // Importing the Verification screen
 import 'package:http/http.dart' as http; // Importing http package for making HTTP requests
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tap_on/Home%20page.dart';
 import 'package:tap_on/Tool_Provider/TP_Login.dart';
+import 'package:tap_on/User_Home/UH_Profile.dart';
 import 'package:tap_on/constants.dart'; // Importing constants
 import 'package:quickalert/quickalert.dart'; // Importing quickalert for showing alerts
 import 'package:tap_on/widgets/Loading.dart'; // Importing Loading widget for showing loading dialogs
@@ -20,6 +22,7 @@ class EnterNumber extends StatefulWidget {
 class _EnterNumberState extends State<EnterNumber> {
   final _formKey = GlobalKey<FormState>(); // Key for the form
   final _phoneController = TextEditingController(); // Controller for the phone number input
+  bool _isLoading = false; // Loading state
 
   @override
   void dispose() {
@@ -36,46 +39,6 @@ class _EnterNumberState extends State<EnterNumber> {
     }
 
     return null; // Return null if the input is valid
-  }
-
-  void handleOTPSend() async {
-    // Function to handle OTP sending
-    final phoneNumber = _phoneController.text; // Get the phone number from the controller
-    LoadingDialog.show(context); // Show loading dialog
-    try {
-      final baseURL = dotenv.env['BASE_URL']; // Get the base URL from environment variables
-      final response = await http.get(Uri.parse(
-          '$baseURL/auth/otp/$phoneNumber')); // Send a GET request to the API
-      final data = jsonDecode(response.body); // Decode the response
-      final status = data['status']; // Get the status from the response
-      if (status == 200) {
-        // Check if the status is 200
-        LoadingDialog.hide(context); // Hide the loading dialog
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                HomePage(), // Navigate to the Verification screen
-          ),
-        );
-      } else {
-        // Show an error alert if the status is not 200
-        LoadingDialog.hide(context); // Hide the loading dialog
-        QuickAlert.show(
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Oops...',
-          text: 'Sorry, something went wrong', // Show an error alert
-          backgroundColor: Colors.black,
-          titleColor: Colors.white,
-          textColor: Colors.white,
-        );
-      }
-    } catch (e) {
-      // Show an error alert if an error occurs
-      LoadingDialog.hide(context); // Hide the loading dialog
-      debugPrint('Something went wrong $e'); // Print the error
-    }
   }
 
   @override
@@ -113,10 +76,6 @@ class _EnterNumberState extends State<EnterNumber> {
                 ),
               ],
             ),
-
-
-
-
             Center(
               // Center the children
               child: Column(
@@ -154,9 +113,45 @@ class _EnterNumberState extends State<EnterNumber> {
                   ),
                   const SizedBox(height: 25), // Add some space
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        handleOTPSend(); // Send OTP if the form is valid
+                        try {
+                          setState(() => _isLoading = true);
+                          
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setString('phoneNumber', _phoneController.text);
+
+                          final baseURL = dotenv.env['BASE_URL'];
+                          final response = await http.get(
+                            Uri.parse('$baseURL/profile/${_phoneController.text}'),
+                          );
+
+                          final data = jsonDecode(response.body);
+                          setState(() => _isLoading = false);
+
+                          if (!mounted) return;
+
+                          if (response.statusCode == 200) {
+                            await Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HomePage()),
+                              (route) => false,
+                            );
+                          } else {
+                            await Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const UH_Profile()),
+                              (route) => false,
+                            );
+                          }
+                        } catch (e) {
+                          setState(() => _isLoading = false);
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: ${e.toString()}')),
+                            );
+                          }
+                        }
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -178,36 +173,31 @@ class _EnterNumberState extends State<EnterNumber> {
                       ),
                     ),
                   ),
-        const SizedBox(height: 45), // Add some space
-        ElevatedButton(
-        onPressed: () {
+                  const SizedBox(height: 45), // Add some space
+                  ElevatedButton(
+                    onPressed: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) => TP_Login()));
-                
-          // Add your onPressed logic hereTP_Login
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blueAccent, // Set the button color
-          padding: const EdgeInsets.symmetric(
-          horizontal: 40, // Set horizontal padding
-          vertical: 15, // Set vertical padding
-          ),
-          shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10), // Set the border radius
-          ),
-        ),
-        child: const Text(
-          'Provider Login', // Set the button text
-          style: TextStyle(
-          fontSize: 16, // Set the font size
-          color: Colors.white, // Set the text color
-          fontWeight: FontWeight.bold, // Set the font weight
-          ),
-        ),
-        ),
-      
-
-
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent, // Set the button color
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40, // Set horizontal padding
+                        vertical: 15, // Set vertical padding
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Set the border radius
+                      ),
+                    ),
+                    child: const Text(
+                      'Provider Login', // Set the button text
+                      style: TextStyle(
+                        fontSize: 16, // Set the font size
+                        color: Colors.white, // Set the text color
+                        fontWeight: FontWeight.bold, // Set the font weight
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

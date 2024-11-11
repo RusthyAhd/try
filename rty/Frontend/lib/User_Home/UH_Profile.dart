@@ -5,8 +5,8 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:quickalert/quickalert.dart';
 import 'dart:io';
-
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tap_on/Home%20page.dart';
 import 'package:tap_on/widgets/Loading.dart';
 
 class UH_Profile extends StatefulWidget {
@@ -31,110 +31,175 @@ class _UH_ProfileState extends State<UH_Profile> {
   String address = '';
   String location = '';
   File? profilePhoto;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _initAsync();
+    _loadProfileData();
   }
 
-  void _initAsync() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString('fullName') ?? '';
-    final phone = prefs.getString('phoneNumber');
-    final mail = prefs.getString('email');
-    final birth = prefs.getString('birthday');
-    final add = prefs.getString('address');
-    final loc = prefs.getString('location');
-    setState(() {
-      _nameController.text = name;
-      _phoneController.text = phone!;
-      _emailController.text = mail!;
-      _addressController.text = add!;
-      _locationController.text = loc!;
-    });
+  Future<void> _loadProfileData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final phoneNumber = prefs.getString('phoneNumber');
+      
+      if (phoneNumber == null) throw Exception('Phone number not found');
+
+      final baseURL = dotenv.env['BASE_URL'];
+      final response = await http.get(
+        Uri.parse('$baseURL/profile/$phoneNumber'),
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final user = data['data']['user'];
+        
+        setState(() {
+          _nameController.text = user['fullName'] ?? '';
+          _phoneController.text = user['phoneNumber'] ?? '';
+          _emailController.text = user['email'] ?? '';
+          _addressController.text = user['address'] ?? '';
+          _locationController.text = user['location'] ?? '';
+          
+          if (user['birthday'] != null) {
+            birthday = DateTime.parse(user['birthday']);
+          }
+          
+          gender = user['gender'] ?? 'Male';
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load profile');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   Future<void> createOrUpdateProfile() async {
-    LoadingDialog.show(context); // Show loading dialog
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+    if (!_formKey.currentState!.validate()) return;
+    
+    try {
+      setState(() => _isLoading = true);
+      
+      final prefs = await SharedPreferences.getInstance();
+      final phoneNumber = prefs.getString('phoneNumber');
+      
+      if (phoneNumber == null) {
+        throw Exception('Phone number not found');
+      }
 
-      try {
-        // Prepare the request body
-        final requestBody = {
-          'fullName': _nameController.text,
-          'phoneNumber': _phoneController.text,
-          'email': _emailController.text,
-          'birthday': birthday.toIso8601String(),
-          'gender': gender,
-          'address': _addressController.text,
-          'location': _locationController.text,
-          "profilePhoto": 'N/A',
-        };
+      final requestBody = {
+        'fullName': _nameController.text.trim(),
+        'phoneNumber': phoneNumber,
+        'email': _emailController.text.trim(),
+        'birthday': birthday.toIso8601String(),
+        'gender': gender,
+        'address': _addressController.text.trim(),
+        'location': _locationController.text.trim(),
+        'profilePhoto': profilePhoto?.path ?? 'N/A',
+      };
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        final baseURL = dotenv.env['BASE_URL']; // Get the base URL
-        final accessToken = prefs.getString('token'); // Get access token
-        final response = await http.post(Uri.parse('$baseURL/profile/cu'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': '$accessToken',
-            },
-            body: json.encode(requestBody)); // Send a POST request to the API
-        final data = jsonDecode(response.body); // Decode the response
-        final status = data['status']; // Get the status from the response
+      print('Request body: $requestBody'); // Debug log
 
-        if (status == 200) {
-          // Successfully created or updated the profile
-          await prefs.setString(
-              'token', data['data']['token'] ?? ''); // Save the token
-          debugPrint(data['data']['user']['phoneNumber']);
-          await prefs.setString(
-              'phoneNumber',
-              data['data']['user']['phoneNumber'] ??
-                  ''); // Save the phone number
-          await prefs.setString('fullName',
-              data['data']['user']['fullName'] ?? ''); // Save the full name
-          await prefs.setString(
-              'email', data['data']['user']['email'] ?? ''); // Save the email
-          await prefs.setString(
-              'profileImage',
-              data['data']['user']['profileImage'] ??
-                  ''); // Save the profile image
-          if (data['data']['user']['birthday'] != null) {
-            await prefs.setString('birthday',
-                data['data']['user']['birthday'] ?? ''); // Save the birthday
-          }
-          await prefs.setString('gender',
-              data['data']['user']['gender'] ?? ''); // Save the gender
-          await prefs.setString('location',
-              data['data']['user']['location'] ?? ''); // Save the location
-          await prefs.setString('address',
-              data['data']['user']['address'] ?? ''); // Save the address
-          LoadingDialog.hide(context); // Hide the loading dialog
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Profile updated successfully')),
-          );
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.success,
-            text: 'Profile updated successfully',
-            autoCloseDuration: const Duration(seconds: 2),
-            showConfirmBtn: false,
-          );
-        } else {
-          // Handle error
-          LoadingDialog.hide(context); // Hide the loading dialog
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update profile')),
-          );
-        }
-      } catch (e) {
-        print(e);
-        LoadingDialog.hide(context); // Hide the loading dialog
+      final baseURL = dotenv.env['BASE_URL'];
+      if (baseURL == null) {
+        throw Exception('BASE_URL not found in environment');
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseURL/profile/cu'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      print('Response status: ${response.statusCode}'); // Debug log
+      print('Response body: ${response.body}'); // Debug log
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await saveToPrefs(requestBody);
+        
+        if (!mounted) return;
+        
+        await QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          text: 'Profile saved successfully!',
+          confirmBtnText: 'OK',
+          onConfirmBtnTap: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+              (route) => false,
+            );
+          },
+        );
+      } else {
+        throw Exception(responseData['message'] ?? 'Failed to save profile');
+      }
+    } catch (e) {
+      print('Error saving profile: $e'); // Debug log
+      setState(() => _isLoading = false);
+      if (mounted) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Error',
+          text: e.toString(),
+        );
       }
     }
+  }
+
+  Future<bool> refreshToken() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final phoneNumber = prefs.getString('phoneNumber');
+      
+      final response = await http.post(
+        Uri.parse('${dotenv.env['BASE_URL']}/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'phoneNumber': phoneNumber}),
+      );
+
+      final data = jsonDecode(response.body);
+      if (data['status'] == 200) {
+        await prefs.setString('token', data['token']);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> saveToPrefs(Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    await Future.wait([
+      prefs.setString('phoneNumber', data['phoneNumber'] ?? ''),
+      prefs.setString('fullName', data['fullName'] ?? ''),
+      prefs.setString('email', data['email'] ?? ''),
+      prefs.setString('birthday', data['birthday'] ?? ''),
+      prefs.setString('gender', data['gender'] ?? ''),
+      prefs.setString('address', data['address'] ?? ''),
+      prefs.setString('location', data['location'] ?? ''),
+    ]);
   }
 
   Future<void> pickImage() async {
@@ -148,196 +213,295 @@ class _UH_ProfileState extends State<UH_Profile> {
     }
   }
 
+  Future<void> saveProfileToDatabase() async {
+    if (!_formKey.currentState!.validate()) return;
+    
+    try {
+      if (!mounted) return;
+      setState(() => _isLoading = true);
+      
+      final prefs = await SharedPreferences.getInstance();
+      final phoneNumber = prefs.getString('phoneNumber');
+      
+      if (phoneNumber == null) {
+        throw Exception('Phone number not found');
+      }
+
+      final loginResponse = await http.post(
+        Uri.parse('${dotenv.env['BASE_URL']}/profile/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'phoneNumber': phoneNumber,
+        }),
+      );
+
+      if (!mounted) return;
+
+      if (loginResponse.statusCode != 200) {
+        throw Exception('Login failed: ${loginResponse.body}');
+      }
+
+      final loginData = jsonDecode(loginResponse.body);
+      final token = loginData['token'];
+
+      final requestBody = {
+        'fullName': _nameController.text.trim(),
+        'phoneNumber': phoneNumber,
+        'email': _emailController.text.trim(),
+        'birthday': birthday.toIso8601String(),
+        'gender': gender,
+        'address': _addressController.text.trim(),
+        'location': _locationController.text.trim(),
+        'profilePhoto': profilePhoto?.path ?? '',
+      };
+
+      final saveResponse = await http.post(
+        Uri.parse('${dotenv.env['BASE_URL']}/profile/cu'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      if (saveResponse.statusCode == 200 || saveResponse.statusCode == 201) {
+        await saveToPrefs(requestBody);
+        
+        if (!mounted) return;
+        
+        // Use BuildContext.mounted check before showing QuickAlert
+        if (context.mounted) {
+          await QuickAlert.show(
+            context: context,
+            type: QuickAlertType.success,
+            text: 'Profile saved successfully!',
+            onConfirmBtnTap: () {
+              if (context.mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomePage()),
+                  (route) => false,
+                );
+              }
+            },
+          );
+        }
+      } else {
+        throw Exception(jsonDecode(saveResponse.body)['message']);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      
+      if (context.mounted) {
+        await QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Error',
+          text: e.toString(),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _addressController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile Management'),
+        title: const Text('Profile'),
         backgroundColor: Colors.green[700],
-        elevation: 2,
-        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              GestureDetector(
-                onTap: pickImage,
-                child: Center(
-                  child: Stack(
-                    children: [
-                      profilePhoto != null
-                          ? CircleAvatar(
-                              radius: 50.0,
-                              backgroundImage: FileImage(profilePhoto!),
-                              backgroundColor: Colors.grey[200],
-                            )
-                          : CircleAvatar(
-                              radius: 50.0,
-                              child: Icon(
-                                Icons.person,
-                                size: 50.0,
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: pickImage,
+                  child: Center(
+                    child: Stack(
+                      children: [
+                        profilePhoto != null
+                            ? CircleAvatar(
+                                radius: 50.0,
+                                backgroundImage: FileImage(profilePhoto!),
+                                backgroundColor: Colors.grey[200],
+                              )
+                            : CircleAvatar(
+                                radius: 50.0,
+                                child: Icon(
+                                  Icons.person,
+                                  size: 50.0,
+                                ),
                               ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            height: 35,
+                            width: 35,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.green[700],
                             ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          height: 35,
-                          width: 35,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.green[700],
-                          ),
-                          child: Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 20,
+                            child: Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 20),
-              Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          labelText: 'Full Name',
-                          prefixIcon: Icon(Icons.person),
-                        ),
-                        validator: (value) => value!.isEmpty
-                            ? 'Please enter your full name'
-                            : null,
-                        onSaved: (value) => fullName = value!,
-                      ),
-                      SizedBox(height: 16),
-                      TextFormField(
-                        controller: _phoneController,
-                        decoration: InputDecoration(
-                          labelText: 'Phone Number',
-                          prefixIcon: Icon(Icons.phone),
-                        ),
-                        validator: (value) => value!.isEmpty
-                            ? 'Please enter your phone number'
-                            : null,
-                        onSaved: (value) => phoneNumber = value!,
-                      ),
-                      SizedBox(height: 16),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: Icon(Icons.email),
-                        ),
-                        validator: (value) =>
-                            value!.isEmpty ? 'Please enter your email' : null,
-                        onSaved: (value) => email = value!,
-                      ),
-                      SizedBox(height: 16),
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Birthday',
-                          hintText: 'Select your birthday',
-                          prefixIcon: Icon(Icons.calendar_today),
-                        ),
-                        readOnly: true,
-                        onTap: () async {
-                          DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: birthday,
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime(2101),
-                          );
-                          if (pickedDate != null && pickedDate != birthday) {
-                            setState(() {
-                              birthday = pickedDate;
-                            });
-                          }
-                        },
-                        controller: TextEditingController(
-                          text: "${birthday.toLocal()}"
-                              .split(' ')[0], // Show selected date
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: gender,
-                        decoration: InputDecoration(
-                          labelText: 'Gender',
-                          prefixIcon: Icon(Icons.person_outline),
-                        ),
-                        items: <String>['Male', 'Female', 'Other']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            gender = newValue!;
-                          });
-                        },
-                      ),
-                      SizedBox(height: 16),
-                      TextFormField(
-                        controller: _addressController,
-                        decoration: InputDecoration(
-                          labelText: 'Address',
-                          prefixIcon: Icon(Icons.home),
-                        ),
-                        validator: (value) =>
-                            value!.isEmpty ? 'Please enter your address' : null,
-                        onSaved: (value) => address = value!,
-                      ),
-                      SizedBox(height: 16),
-                      TextFormField(
-                        controller: _locationController,
-                        decoration: InputDecoration(
-                          labelText: 'District',
-                          prefixIcon: Icon(Icons.location_on),
-                        ),
-                        validator: (value) => value!.isEmpty
-                            ? 'Please enter your district'
-                            : null,
-                        onSaved: (value) => location = value!,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: createOrUpdateProfile,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[700],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                SizedBox(height: 20),
+                Card(
                   elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            labelText: 'Full Name',
+                            prefixIcon: Icon(Icons.person),
+                          ),
+                          validator: (value) => value!.isEmpty
+                              ? 'Please enter your full name'
+                              : null,
+                          onSaved: (value) => fullName = value!,
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: _phoneController,
+                          decoration: InputDecoration(
+                            labelText: 'Phone Number',
+                            prefixIcon: Icon(Icons.phone),
+                          ),
+                          validator: (value) => value!.isEmpty
+                              ? 'Please enter your phone number'
+                              : null,
+                          onSaved: (value) => phoneNumber = value!,
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            prefixIcon: Icon(Icons.email),
+                          ),
+                          validator: (value) =>
+                              value!.isEmpty ? 'Please enter your email' : null,
+                          onSaved: (value) => email = value!,
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Birthday',
+                            hintText: 'Select your birthday',
+                            prefixIcon: Icon(Icons.calendar_today),
+                          ),
+                          readOnly: true,
+                          onTap: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: birthday,
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime(2101),
+                            );
+                            if (pickedDate != null && pickedDate != birthday) {
+                              setState(() {
+                                birthday = pickedDate;
+                              });
+                            }
+                          },
+                          controller: TextEditingController(
+                            text: "${birthday.toLocal()}"
+                                .split(' ')[0], // Show selected date
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: gender,
+                          decoration: InputDecoration(
+                            labelText: 'Gender',
+                            prefixIcon: Icon(Icons.person_outline),
+                          ),
+                          items: <String>['Male', 'Female', 'Other']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              gender = newValue!;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: _addressController,
+                          decoration: InputDecoration(
+                            labelText: 'Address',
+                            prefixIcon: Icon(Icons.home),
+                          ),
+                          validator: (value) =>
+                              value!.isEmpty ? 'Please enter your address' : null,
+                          onSaved: (value) => address = value!,
+                        ),
+                        SizedBox(height: 16),
+                        TextFormField(
+                          controller: _locationController,
+                          decoration: InputDecoration(
+                            labelText: 'District',
+                            prefixIcon: Icon(Icons.location_on),
+                          ),
+                          validator: (value) => value!.isEmpty
+                              ? 'Please enter your district'
+                              : null,
+                          onSaved: (value) => location = value!,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 60),
-                  child: Text('Save Profile', style: TextStyle(fontSize: 18)),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : saveProfileToDatabase,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                  ),
+                  child: _isLoading 
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Save Profile', style: TextStyle(color: Colors.white)),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
     );
   }
 }

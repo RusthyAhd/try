@@ -5,102 +5,74 @@ const ShopOwner = require('../models/Owner.model')
 const OTPGateWay = require("../utils/OTPGateway");
 
 exports.addNewOrder = async (req, res, next) => {
-
     try {
-
-        const { tool_id, shop_id, title, qty, days, status, date, customer_address } = req.body;
-
-        if (!tool_id || !shop_id || !title || !qty || !days || !status || !date) {
-            return res.status(400).send(
-                new CustomResponse(
-                    400,
-                    'All fields are required!'
-                )
-            );
-        }
-
-        // 1: Verify if the tool exists by tool_id
-        const tool = await ToolModel.findOne({ tool_id });
-
-        if (!tool) {
-            return res.status(404).send(
-                new CustomResponse(
-                    404,
-                    `Tool with ID ${tool_id} not found`
-                )
-            )
-        }
-
-        //generate new tool-order id
-        const order_id = 'OT-'+Date.now();
-
-        const total_price = qty * (days * tool.item_price);
-
-        if (!req.tokenData.user.fullName || !req.tokenData.user.address || !req.tokenData.user.phoneNumber || !req.tokenData.user.location){
-            return res.status(400).send(
-                new CustomResponse(
-                    400,
-                    'Can not find required details! Please update your profile details first and try again.'
-                )
-            );
-        }
-
-        let shop_details = await ShopOwner.findById(shop_id);
-
-        if (!shop_details){
-            return res.status(404).send(
-                new CustomResponse(
-                    404,
-                    'Can not find shop! '
-                )
-            );
-        }
-
-
-        // 2: Create the new order instance
-        const newToolOrder = new ToolOrderModel({
-            order_id,
+        const {
             tool_id,
             shop_id,
-            customer_id:req.tokenData.user._id,
-            customer_name:req.tokenData.user.fullName,
-            customer_address:customer_address || req.tokenData.user.address,
-            customer_location:req.tokenData.user.location,
-            customer_number:req.tokenData.user.phoneNumber,
+            customer_id,
+            customer_name,
+            customer_address,
+            customer_location,
+            customer_number,
             title,
             qty,
             days,
             total_price,
-            status: status || 'pending',// Default status is 'pending'
+            status,
             date
+        } = req.body;
+
+        // Validate required fields
+        if (!tool_id || !shop_id || !customer_id || !customer_name || 
+            !customer_address || !customer_location || !customer_number || 
+            !title || !qty || !days || !total_price || !status || !date) {
+            return res.status(400).send(
+                new CustomResponse(400, 'All fields are required!')
+            );
+        }
+
+        // Generate order ID
+        const order_id = 'TO-' + Date.now();
+
+        // Create new order
+        const newToolOrder = new ToolOrderModel({
+            order_id,
+            tool_id,
+            shop_id,
+            customer_id,
+            customer_name,
+            customer_address,
+            customer_location,
+            customer_number,
+            title,
+            qty,
+            days,
+            total_price,
+            status,
+            date: new Date(date)
         });
 
         await newToolOrder.save();
 
-        // return success response
         res.status(200).send(
             new CustomResponse(
                 200,
-                'Order added successfully',
+                'Order created successfully',
+                { order_id }
             )
-        )
+        );
 
-
-    }catch (error){
-        console.error('Error get all tool :', error);
-
-        return res.status(500).send(
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).send(
             new CustomResponse(
                 500,
-                'Failed to get tools!',
-                {
-                    error: error.message
-                }
+                'Failed to create order',
+                { error: error.message }
             )
-        )
+        );
     }
-
-}
+};
 
 exports.changeStatus = async (req, res, next) => {
 
@@ -289,7 +261,7 @@ exports.findOrdersDateOrId = async (req, res, next) => {
             const searchDate = new Date(date);
             // Search by date (ensure only the date part is compared)
             query.date = {
-                $gte: new Date(searchDate.setHours(00, 00, 00)), // Start of the day
+                $gte: new Date(searchDate.setHours(0, 0, 0)), // Start of the day
                 $lt: new Date(searchDate.setHours(23, 59, 59))   // End of the day
             };
         }
