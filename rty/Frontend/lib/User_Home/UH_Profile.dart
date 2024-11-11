@@ -153,7 +153,7 @@ class _UH_ProfileState extends State<UH_Profile> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile Management'),
-        backgroundColor: Colors.amber[700],
+        backgroundColor: Colors.green[700],
         elevation: 2,
         centerTitle: true,
       ),
@@ -189,7 +189,7 @@ class _UH_ProfileState extends State<UH_Profile> {
                           width: 35,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.amber[700],
+                            color: Colors.green[700],
                           ),
                           child: Icon(
                             Icons.camera_alt,
@@ -323,7 +323,7 @@ class _UH_ProfileState extends State<UH_Profile> {
               ElevatedButton(
                 onPressed: createOrUpdateProfile,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber[700],
+                  backgroundColor: Colors.green[700],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
