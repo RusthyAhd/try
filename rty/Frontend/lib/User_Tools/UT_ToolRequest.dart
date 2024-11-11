@@ -53,15 +53,20 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
       setState(() => _isLoading = true);
       final baseURL = dotenv.env['BASE_URL'];
 
-      // Prepare order data
+      if (baseURL == null) {
+        throw Exception('BASE_URL not found in environment');
+      }
+
+      // Update orderData with correct fields from product
       final orderData = {
         'order_id': 'TO-${DateTime.now().millisecondsSinceEpoch}',
-        'tool_id': widget.product['_id'] ?? '',
-        'shop_id': widget.product['shop_id'] ?? '',
-        'customer_name': 'Guest User',
+        'tool_id': widget.product['id'] ?? '',
+        'shop_id': widget.product['shop_id'] ?? '', // Ensure shop_id is passed from UT_ToolMenu
+        'customer_id': 'GUEST-${DateTime.now().millisecondsSinceEpoch}',
+        'customer_name': _addressController.text,
         'customer_address': _addressController.text,
         'customer_location': _locationController.text,
-        'customer_number': '0000000000',
+        'customer_number': widget.shopEmail,
         'title': widget.product['title'] ?? '',
         'qty': quantity,
         'days': 1,
@@ -70,14 +75,22 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
         'date': DateTime.now().toIso8601String(),
       };
 
+      print('Submitting order data: $orderData'); // Debug log
+
       final response = await http.post(
         Uri.parse('$baseURL/tool-order/new'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: jsonEncode(orderData),
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
-        // Navigate to status page on success
+        if (!mounted) return;
+        
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -89,42 +102,38 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
           ),
         );
       } else {
-        throw Exception('Failed to place order');
+        throw Exception('Failed to place order: ${response.body}');
       }
-
     } catch (e) {
+      print('Error submitting order: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
+  // Update showConfirmDialog to include form validation
   void _showConfirmDialog() {
+    if (_addressController.text.isEmpty || _locationController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all required fields')),
+      );
+      return;
+    }
+
     double originalPrice = double.parse(widget.product['price'].toString());
     double discount = double.parse(widget.product['discount'] ?? '0');
     double discountedPrice = originalPrice - (originalPrice * discount / 100);
     double totalAmount = discountedPrice * quantity;
 
-    if (_userId == null || _userName == null || _userPhone == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please login to continue')),
-      );
-      return;
-    }
-
-    if (quantity <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select quantity')),
-      );
-      return;
-    }
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Confirm Request'),
+        title: Text('Confirm Order'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,6 +141,8 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
             Text('Quantity: $quantity'),
             Text('Price per item: LKR ${discountedPrice.toStringAsFixed(2)}'),
             Text('Total Amount: LKR ${totalAmount.toStringAsFixed(2)}'),
+            Text('Delivery Address: ${_addressController.text}'),
+            Text('Location: ${_locationController.text}'),
           ],
         ),
         actions: [
@@ -274,7 +285,22 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
 
                       ],
                     ),
-          
+                    SizedBox(height: screenHeight * 0.02),
+                    TextField(
+                      controller: _addressController,
+                      decoration: InputDecoration(
+                        labelText: 'Delivery Address*',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: _locationController,
+                      decoration: InputDecoration(
+                        labelText: 'Location*',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
                     SizedBox(height: screenHeight * 0.04),
                     Center(
                       child: ElevatedButton(

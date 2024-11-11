@@ -251,8 +251,11 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
                 image: image,
                 description: description,
                 shopEmail: shopEmail,
-                product: product,
                 shopPhone: widget.shopPhone,
+                product: {
+                  ...product,
+                  'shop_id': widget.shopId, // Add shop_id here
+                },
               ),
             ),
           );

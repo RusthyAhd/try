@@ -267,13 +267,14 @@ class ToolDetails extends StatelessWidget {
                       onPressed: () {
                         final discountedPrice = double.parse(price) - (double.parse(price) * discount / 100);
                         final updatedProduct = Map<String, dynamic>.from(product);
-                        updatedProduct['price'] = discountedPrice.toString(); // Use discounted price
+                        updatedProduct['price'] = discountedPrice.toString();
+                        updatedProduct['shop_id'] = product['shop_id']; // Ensure shop_id is passed
                         
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => UT_ToolRequest(
-                              product: updatedProduct,  // Pass updated product with discounted price
+                              product: updatedProduct,
                               shopEmail: shopEmail,
                             ),
                           ),
