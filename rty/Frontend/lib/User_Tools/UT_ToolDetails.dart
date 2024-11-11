@@ -265,11 +265,15 @@ class ToolDetails extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
+                        final discountedPrice = double.parse(price) - (double.parse(price) * discount / 100);
+                        final updatedProduct = Map<String, dynamic>.from(product);
+                        updatedProduct['price'] = discountedPrice.toString(); // Use discounted price
+                        
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => UT_ToolRequest(
-                              product: product,
+                              product: updatedProduct,  // Pass updated product with discounted price
                               shopEmail: shopEmail,
                             ),
                           ),
