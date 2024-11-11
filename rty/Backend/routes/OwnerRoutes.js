@@ -1,6 +1,6 @@
 const express = require('express'); // Import express package
 const OwnerController = require('../controllers/Owner.Controller');
-const {verifyToken} = require("../middleware/authMiddleware");
+
 const ServiceProviderController = require("../controllers/ServiceProvider.controller"); // Import the controller
 
 const router = express.Router();
@@ -8,12 +8,12 @@ const router = express.Router();
 // Update POST route for shop registration
 router.post('/registration', OwnerController.register);
 
-router.post('/get/all/category/location', verifyToken, OwnerController.getShopsByCategoryAndLocation);
+router.post('/get/all/category/location',  OwnerController.getShopsByCategoryAndLocation);
 
-router.put('/update/:id', verifyToken, OwnerController.updateShopDetails);
+router.put('/update/:id',  OwnerController.updateShopDetails);
 
-router.post('/login/owner', verifyToken, OwnerController.login);
+router.post('/login/owner',  OwnerController.login);
 
-router.get('/find', verifyToken, OwnerController.findOwnerByEmail)
+router.get('/find', OwnerController.findOwnerByEmail)
 
 module.exports = router;

@@ -138,12 +138,12 @@ class ToolDetails extends StatelessWidget {
           style: TextStyle(
               fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.orangeAccent,
+        backgroundColor: Colors.white,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.orangeAccent, Colors.yellow[700]!],
+            colors: [Colors.green[600]!, Colors.green[400]!],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -265,11 +265,16 @@ class ToolDetails extends StatelessWidget {
                   children: [
                     ElevatedButton(
                       onPressed: () {
+                        final discountedPrice = double.parse(price) - (double.parse(price) * discount / 100);
+                        final updatedProduct = Map<String, dynamic>.from(product);
+                        updatedProduct['price'] = discountedPrice.toString();
+                        updatedProduct['shop_id'] = product['shop_id']; // Ensure shop_id is passed
+                        
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => UT_ToolRequest(
-                              product: product,
+                              product: updatedProduct,
                               shopEmail: shopEmail,
                             ),
                           ),

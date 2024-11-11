@@ -5,7 +5,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tap_on/Tool_Provider/TP_Dashboard.dart';
 import 'package:tap_on/Tool_Provider/TP_ToolManager.dart';
 import 'package:tap_on/widgets/Loading.dart';
 import 'package:http/http.dart' as http;
@@ -21,6 +20,7 @@ class _TP_AddToolState extends State<TP_AddTool> {
   final _formKey = GlobalKey<FormState>();
   String? selectedCategory;
   bool isNew = true;
+  String availability = 'Available';
   TimeOfDay? startTime;
   TimeOfDay? endTime;
   File? _image;
@@ -266,13 +266,13 @@ class _TP_AddToolState extends State<TP_AddTool> {
                     ),
                   ),
           ),
-
         ),
-        child: _image == null
-            ? const Center(child: Text('image selected'))
-            : Image.file(_image!, fit: BoxFit.cover),
-      ),
+      ],
     );
+
+        
+      
+    
   }
 
   Widget _buildPrice() {

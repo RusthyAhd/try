@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tap_on/User_Tools/UT_ProviderOrderStatus.dart';
-import 'package:tap_on/widgets/Loading.dart';
 import 'package:http/http.dart' as http;
 
 class UT_ToolRequest extends StatefulWidget {
@@ -22,19 +20,146 @@ class UT_ToolRequest extends StatefulWidget {
 }
 
 class _UT_ToolRequestState extends State<UT_ToolRequest> {
-  final List<String> weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  List<String> selectedWeekdays = [];
-  final TextEditingController _qytController = TextEditingController();
-  int quantity = 1;
+  int quantity = 0;
+  final _qytController = TextEditingController(text: '0');
+  String? _userId;
+  String? _userName;
+  String? _userPhone;
+  String? _userAddress;
+  String? _userLocation;
+  bool _isLoading = false;
+  final _addressController = TextEditingController();
+  final _locationController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    selectedWeekdays = widget.product['available_days'] != null
-        ? List<String>.from(widget.product['available_days'])
-        : [];
-    quantity = int.parse(widget.product['quantity'] ?? '1');
-    _qytController.text = '1';
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId') ?? '';
+      _userName = prefs.getString('userName') ?? '';
+      _userPhone = prefs.getString('userPhone') ?? '';
+      _userAddress = prefs.getString('userAddress') ?? '';
+      _userLocation = prefs.getString('userLocation') ?? '';
+    });
+  }
+
+  Future<void> _submitOrder(double totalAmount) async {
+    try {
+      setState(() => _isLoading = true);
+      final baseURL = dotenv.env['BASE_URL'];
+
+      if (baseURL == null) {
+        throw Exception('BASE_URL not found in environment');
+      }
+
+      // Update orderData with correct fields from product
+      final orderData = {
+        'order_id': 'TO-${DateTime.now().millisecondsSinceEpoch}',
+        'tool_id': widget.product['id'] ?? '',
+        'shop_id': widget.product['shop_id'] ?? '', // Ensure shop_id is passed from UT_ToolMenu
+        'customer_id': 'GUEST-${DateTime.now().millisecondsSinceEpoch}',
+        'customer_name': _addressController.text,
+        'customer_address': _addressController.text,
+        'customer_location': _locationController.text,
+        'customer_number': widget.shopEmail,
+        'title': widget.product['title'] ?? '',
+        'qty': quantity,
+        'days': 1,
+        'total_price': totalAmount,
+        'status': 'pending',
+        'date': DateTime.now().toIso8601String(),
+      };
+
+      print('Submitting order data: $orderData'); // Debug log
+
+      final response = await http.post(
+        Uri.parse('$baseURL/tool-order/new'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(orderData),
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        if (!mounted) return;
+        
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UT_ProviderOrderStatus(
+              provider: widget.product,
+              status: 'pending',
+              order: orderData,
+            ),
+          ),
+        );
+      } else {
+        throw Exception('Failed to place order: ${response.body}');
+      }
+    } catch (e) {
+      print('Error submitting order: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  // Update showConfirmDialog to include form validation
+  void _showConfirmDialog() {
+    if (_addressController.text.isEmpty || _locationController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all required fields')),
+      );
+      return;
+    }
+
+    double originalPrice = double.parse(widget.product['price'].toString());
+    double discount = double.parse(widget.product['discount'] ?? '0');
+    double discountedPrice = originalPrice - (originalPrice * discount / 100);
+    double totalAmount = discountedPrice * quantity;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Order'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Quantity: $quantity'),
+            Text('Price per item: LKR ${discountedPrice.toStringAsFixed(2)}'),
+            Text('Total Amount: LKR ${totalAmount.toStringAsFixed(2)}'),
+            Text('Delivery Address: ${_addressController.text}'),
+            Text('Location: ${_locationController.text}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _submitOrder(totalAmount);
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      ),
+    );
   }
 
   bool isBase64(String str) {
@@ -46,104 +171,11 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
     }
   }
 
-  Future<void> handleAddNewOrder() async {
-    LoadingDialog.show(context);
-
-    try {
-      final baseURL = dotenv.env['BASE_URL'];
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-      final bodyData = {
-        "tool_id": widget.product['id'],
-        "shop_id": widget.shopEmail,
-        "title": widget.product['title'],
-        "qty": quantity,
-        "days": 1,
-        "status": "pending",
-        "date": DateTime.now().toString(),
-      };
-
-      final response = await http.post(
-        Uri.parse('$baseURL/to/new'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': '$token',
-        },
-        body: jsonEncode(bodyData),
-      );
-      final data = jsonDecode(response.body);
-
-      if (data['status'] == 200) {
-        LoadingDialog.hide(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => UT_ProviderOrderStatus(
-              provider: widget.product,
-              status: 'success',
-              order: widget.product,
-            ),
-          ),
-        );
-      } else {
-        LoadingDialog.hide(context);
-        _showErrorAlert();
-      }
-    } catch (e) {
-      LoadingDialog.hide(context);
-      debugPrint('Something went wrong $e');
-    }
-  }
-
-  void _showErrorAlert() {
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.error,
-      title: 'Oops...',
-      text: 'Sorry, something went wrong',
-      backgroundColor: Colors.black,
-      titleColor: Colors.white,
-      textColor: Colors.white,
-    );
-  }
-
-  void _showConfirmAlert() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirm Request'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Tool: ${widget.product['title'] ?? 'title'}'),
-              Text('Amount: LKR ${widget.product['price']} x $quantity'),
-              Text('Total: LKR ${double.parse(widget.product['price']) * quantity}'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                handleAddNewOrder();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                foregroundColor: Colors.white,
-              ),
-              child: Text('Confirm'),
-            ),
-          ],
-        );
-      },
-    );
+  double calculateTotal() {
+    double originalPrice = double.parse(widget.product['price']);
+    double discount = double.parse(widget.product['discount'] ?? '0');
+    double discountedPrice = originalPrice - (originalPrice * discount / 100);
+    return discountedPrice * quantity;
   }
 
   @override
@@ -153,24 +185,26 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orangeAccent,
+        backgroundColor: Colors.lightGreen[50],
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Request Tools', style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.05)),
+        title: Text('Request Products', style: TextStyle(color: Colors.black, fontSize: screenWidth * 0.05)),
         centerTitle: true,
       ),
-      body: Container(
+      body: _isLoading 
+        ? Center(child: CircularProgressIndicator())
+        : Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.orangeAccent, Colors.yellow[700]!],
+            colors: [Colors.greenAccent, Colors.green[500]!],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 75.0),
           child: SingleChildScrollView(
             child: Card(
               elevation: 3,
@@ -180,7 +214,7 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: screenHeight * 0.02),
+                    SizedBox(height: screenHeight * 0.05),
                     Center(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(15),
@@ -195,24 +229,32 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
                       ),
                     ),
                     SizedBox(height: screenHeight * 0.02),
-                    _buildInfoRow("Tool", widget.product['title']),
+                    _buildInfoRow("Product", widget.product['title']),
                     _buildInfoRow("Availability", widget.product['availability']),
-                    _buildInfoRow("Amount", "LKR ${widget.product['price']} per hour"),
+                    _buildInfoRow("Amount", "LKR ${widget.product['price']} per product"),
                     _buildInfoRow("Available Quantity", widget.product['quantity']),
                     SizedBox(height: screenHeight * 0.02),
                     Text("Enter Quantity", style: TextStyle(fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold)),
                     SizedBox(height: screenHeight * 0.01),
                     Row(
                       children: [
-                        IconButton(
-                          icon: Icon(Icons.remove_circle, color: Colors.blueAccent),
-                          onPressed: quantity > 1
-                              ? () => setState(() {
-                                    quantity--;
-                                    _qytController.text = quantity.toString();
-                                  })
-                              : null,
-                        ),
+                        
+
+                        
+                       IconButton(
+  icon: Icon(Icons.remove_circle, color: Colors.redAccent),
+  iconSize: 30.0, // Increase the size of the icon
+  padding: EdgeInsets.all(8.0), // Adjust padding
+  constraints: BoxConstraints(minWidth: 48, minHeight: 48), // Increase clickable area
+  onPressed: quantity > 0
+      ? () => setState(() {
+          quantity--;
+          _qytController.text = quantity.toString();
+        })
+      : null,
+),
+
+
                         SizedBox(
                           width: 50,
                           child: TextField(
@@ -227,21 +269,42 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
                             },
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(Icons.add_circle, color: Colors.blueAccent),
-                          onPressed: quantity < int.parse(widget.product['quantity'] ?? '1')
-                              ? () => setState(() {
-                                    quantity++;
-                                    _qytController.text = quantity.toString();
-                                  })
-                              : null,
-                        ),
+                       IconButton(
+  icon: Icon(Icons.add_circle, color: Colors.blueAccent),
+  iconSize: 30.0, // Increase the size of the icon
+  padding: EdgeInsets.all(8.0), // Adjust padding for a larger tap area
+  constraints: BoxConstraints(minWidth: 48, minHeight: 48), // Increase clickable area
+  onPressed: quantity < int.parse(widget.product['quantity'] ?? '1')
+      ? () => setState(() {
+          quantity++;
+          _qytController.text = quantity.toString();
+        })
+      : null,
+),
+
+
                       ],
+                    ),
+                    SizedBox(height: screenHeight * 0.02),
+                    TextField(
+                      controller: _addressController,
+                      decoration: InputDecoration(
+                        labelText: 'Delivery Address*',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: _locationController,
+                      decoration: InputDecoration(
+                        labelText: 'Location*',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                     SizedBox(height: screenHeight * 0.04),
                     Center(
                       child: ElevatedButton(
-                        onPressed: _showConfirmAlert,
+                        onPressed: quantity > 0 ? _showConfirmDialog : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
                           foregroundColor: Colors.white,

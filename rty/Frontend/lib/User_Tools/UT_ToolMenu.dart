@@ -39,12 +39,9 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
 
   Future<void> getAllTools() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
       final baseURL = dotenv.env['BASE_URL'];
-      final token = prefs.getString('token');
-      // set the price, image, quantity, description, availability, available_days, available_hours
 
-      if (baseURL == null || token == null) {
+      if (baseURL == null) {
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
@@ -58,7 +55,6 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
         Uri.parse('$baseURL/tool/get/all/${widget.shopId}'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token,
         },
       );
 
@@ -73,7 +69,7 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
               'id': tool['tool_id'] ?? 'N/A',
               'title': tool['title'] ?? 'Service Name',
               'price': tool['item_price'].toString(),
-              'discount': tool['discount']?.toString() ?? '0', // Add discount
+              'discount': tool['discount']?.toString() ?? '0',
               'quantity': tool['qty'].toString(),
               'image': tool['pic'] ?? '',
               'description': tool['description'] ?? tool['title'],
@@ -255,8 +251,11 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
                 image: image,
                 description: description,
                 shopEmail: shopEmail,
-                product: product,
                 shopPhone: widget.shopPhone,
+                product: {
+                  ...product,
+                  'shop_id': widget.shopId, // Add shop_id here
+                },
               ),
             ),
           );

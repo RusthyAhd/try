@@ -17,6 +17,7 @@ const ServiceOrderRoute = require('./routes/ServiceOrderRoutes');
 const {sentOTP} = require("./utils/OTPService");
 //const {json, urlencoded} = require("body-parser");
 const bodyParser = require('body-parser');
+const userRoutes = require('./routes/newroute');
 
 
 // Initialize the express app
@@ -73,13 +74,14 @@ app.use(express.json());
 // Define the routes for shop owner and service provider registration
 app.use('/api/v1/shop', OwnerRouter);  // Shop owner routes are under /shopowner
 app.use('/api/v1/service-provider', ServiceProviderRouter); // Service provider routes are under /serviceprovider
-app.use('/api/v1/profile', profileRoutes);
+
 app.use('/api/v1/auth',AuthRoute)
 app.use('/api/v1/tool',ToolRoute)
 app.use('/api/v1/to',ToolOrderRoute)
 app.use('/api/v1/service',ServiceRoute)
 app.use('/api/v1/so',ServiceOrderRoute)
-
+app.use('/api/v1/profile',userRoutes);
+app.use('/api/v1', require('./routes/ToolOrderRoutes'));
 // this should always be the end of the routs
 //this is for unhandled routes
 app.all('*',(

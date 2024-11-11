@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -70,19 +71,12 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
 
   Future<void> getAllTools() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
       final baseURL = dotenv.env['BASE_URL']; // Get the base URL
-      final token =
-          prefs.getString('token'); // Get the token from shared preferences
 
-      final coordinates = await getCoordinatesFromCity(widget.userLocation) .timeout(
-          const Duration(seconds: 10),
-          onTimeout: () => throw TimeoutException('Location service timeout'),
-        );
-        if (coordinates == null) {
-      throw Exception('Failed to get coordinates');
-    }
-    
+      final coordinates = await getCoordinatesFromCity(widget.userLocation).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw TimeoutException('Location service timeout'),
+      );
 
       setState(() {
         _latitude = coordinates['latitude'] ?? 6.9271;
@@ -91,20 +85,20 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
 
       final bodyData = {
         'category': widget.tool,
-        "location_long": coordinates['longitude'],
-        "location_lat": coordinates['latitude'],
+        'location_long': coordinates['longitude'],
+        'location_lat': coordinates['latitude'],
       };
 
       final response = await http.post(
         Uri.parse('$baseURL/shop/get/all/category/location'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': '$token',
         },
         body: jsonEncode(bodyData),
-      ); // Send a POST request to the API
-      final data = jsonDecode(response.body); // Decode the response
-      final status = data['status']; // Get the status from the response
+      );
+
+      final data = jsonDecode(response.body);
+      final status = data['status'];
 
       debugPrint(data.toString());
 
@@ -113,31 +107,33 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
         if (services.length > 0) {
           List<Map<String, dynamic>> providers = [];
           Set<google_maps.Marker> providerMarkers = {};
+          
           for (var service in services) {
             providers.add({
               'id': service['_id'] ?? 'N/A',
-              'name': service['shop_name'] ?? 'N/A',
+              'shop_name': service['shop_name'] ?? 'N/A',
+              'name': service['name'] ?? 'N/A',
               'address': service['address'] ?? 'N/A',
               'rating': service['rating'] ?? 0.0,
-              'Shipping': service['shipping'] ?? 'N/A',
-              'image': service['pic'] ?? 'N/A',
-              'email': service['_id'] ?? 'N/A',
+              'category': service['category'] ?? 'N/A',
+              'image': service['pic'] ?? '',
+              'email': service['email'] ?? 'N/A',
               'phone': service['phone'] ?? 'N/A',
+              'location_lat': service['location_lat'],
+              'location_long': service['location_long'],
             });
-            if (service['location_lat'] == null ||
-                service['location_long'] == null) {
-              continue;
+
+            if (service['location_lat'] != null && service['location_long'] != null) {
+              providerMarkers.add(
+                google_maps.Marker(
+                  markerId: google_maps.MarkerId(service['shop_name'] ?? 'N/A'),
+                  position: google_maps.LatLng(service['location_lat'], service['location_long']),
+                  infoWindow: google_maps.InfoWindow(title: service['shop_name'] ?? 'N/A'),
+                ),
+              );
             }
-            providerMarkers.add(
-              google_maps.Marker(
-                markerId: google_maps.MarkerId(service['shop_name'] ?? 'N/A'),
-                position: google_maps.LatLng(
-                    service['location_lat'], service['location_long']),
-                infoWindow: google_maps.InfoWindow(
-                    title: service['shop_name'] ?? 'N/A'),
-              ),
-            );
           }
+          
           setState(() {
             serviceProviders.clear();
             serviceProviders.addAll(providers);
@@ -152,12 +148,34 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
         context: context,
         type: QuickAlertType.error,
         title: 'Oops...',
-        text: 'An error occurred. Please try again.',
+        text: 'Failed to fetch nearby shops. Please try again.',
         backgroundColor: Colors.black,
         titleColor: Colors.white,
         textColor: Colors.white,
       );
     }
+  }
+
+  double _calculateDistance(double? lat1, double? lon1) {
+    if (lat1 == null || lon1 == null) {
+      return 0.0; // Return default distance if coordinates are null
+    }
+    
+    const double R = 6371; // Earth's radius in kilometers
+    
+    double dLat = _toRadians(_latitude - lat1);
+    double dLon = _toRadians(_longitude - lon1);
+    
+    double a = sin(dLat/2) * sin(dLat/2) +
+        cos(_toRadians(lat1)) * cos(_toRadians(_latitude)) * 
+        sin(dLon/2) * sin(dLon/2);
+    
+    double c = 2 * atan2(sqrt(a), sqrt(1-a));
+    return R * c;
+  }
+
+  double _toRadians(double degree) {
+    return degree * (pi / 180);
   }
 
   @override
@@ -322,137 +340,124 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                             end: Alignment.bottomRight,
                           ),
                         ),
-                        child: Row(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Provider Image with Circular Design
-                            // CircleAvatar(
-                            //   radius: 35,
-                            //   backgroundImage: MemoryImage(
-                            //     base64Decode(provider['image']),
-                            //   ),
-                            // ),
-                            SizedBox(width: 16),
-                            // Provider Info
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    provider['name'],
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    provider['address'],
-                                    style: TextStyle(color: Colors.grey[700]),
-                                  ),
-
-                                  SizedBox(height: 8),
-                                  // Rating Bar with Star Design
-                                  Row(
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      RatingBar.builder(
-                                        initialRating: provider['rating'],
-                                        minRating: 1,
-                                        direction: Axis.horizontal,
-                                        allowHalfRating: true,
-                                        itemCount: 5,
-                                        itemSize: 20,
-                                        itemPadding:
-                                            EdgeInsets.symmetric(horizontal: 2),
-                                        itemBuilder: (context, _) => Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                        ),
-                                        onRatingUpdate: (rating) {},
-                                      ),
-                                      SizedBox(width: 10),
                                       Text(
-                                        provider['rating'].toString(),
-                                        style: TextStyle(fontSize: 16),
+                                        provider['shop_name'] ?? 'Shop Name',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Owner: ${provider['name'] ?? 'N/A'}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey[700],
+                                        ),
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
-                            ),
-                            // "Choose" Button with Ripple Effect
-                            ElevatedButton(
-                              onPressed: () {
-                                // Pass the shop's name and relevant products
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => UT_ToolMenu(
-                                      shopName: provider['name'],
-                                      shopId: provider['id'],
-                                      shopEmail: provider['email'],
-                                      shopPhone: provider['phone'], product: null,
-                                      // products: const [
-                                      //   {
-                                      //     'title': 'Hammer (New)',
-                                      //     'price': 'Rs 1,000',
-                                      //     'image': 'assets/images/hammer.jpg',
-                                      //     'description':
-                                      //         'This is a high-quality new hammer made for heavy-duty usage.',
-                                      //   },
-                                      //   {
-                                      //     'title': 'Pliers (Used)',
-                                      //     'price': 'Rs 300',
-                                      //     'image': 'assets/images/pliers.jpg',
-                                      //     'description':
-                                      //         'Used pliers in good condition. Suitable for small repairs.',
-                                      //   },
-                                      //   {
-                                      //     'title': 'Screwdrivers (New)',
-                                      //     'price': 'Rs 900',
-                                      //     'image':
-                                      //         'assets/images/Screwdrivers.jpg',
-                                      //     'description':
-                                      //         'This is a high-quality new hammer made for heavy-duty usage.',
-                                      //   },
-                                      //   {
-                                      //     'title': 'Wire Stripper (Used)',
-                                      //     'price': 'Rs 500',
-                                      //     'image':
-                                      //         'assets/images/Wire Stripper.jpeg',
-                                      //     'description':
-                                      //         'This is a high-quality new hammer made for heavy-duty usage.',
-                                      //   },
-                                      //   {
-                                      //     'title':
-                                      //         'Flame Retardant Shirt (New)',
-                                      //     'price': 'Rs 680',
-                                      //     'image':
-                                      //         'assets/images/Flame Retardant Shirt.jpg',
-                                      //     'description':
-                                      //         'This is a high-quality new hammer made for heavy-duty usage.',
-                                      //   },
-                                      //   // Add more products for the shop here...
-                                      // ],
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green[100],
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    provider['category'] ?? 'N/A',
+                                    style: TextStyle(
+                                      color: Colors.green[700],
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: Colors.black,
-                                elevation: 5,
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              ),
-                              child: Text(
-                                'Choose',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            )
+                              ],
+                            ),
+                            SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Icon(Icons.location_on, color: Colors.red[400], size: 20),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    provider['address'] ?? 'Address not available',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(Icons.phone, color: Colors.blue[400], size: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  provider['phone'] ?? 'N/A',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Distance: ${_calculateDistance(
+                                    provider['location_lat']?.toDouble(),
+                                    provider['location_long']?.toDouble(),
+                                  ).toStringAsFixed(2)} km',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => UT_ToolMenu(
+                                          shopName: provider['shop_name'] ?? 'N/A',
+                                          shopId: provider['id'] ?? 'N/A', 
+                                          shopEmail: provider['email'] ?? 'N/A',
+                                          shopPhone: provider['phone'] ?? 'N/A',
+                                          product: 'YourProduct', // Add the required product argument
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green[700],
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'View Product',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
