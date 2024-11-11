@@ -7,7 +7,6 @@ import 'package:quickalert/quickalert.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tap_on/Home%20page.dart';
-import 'package:tap_on/widgets/Loading.dart';
 
 class UH_Profile extends StatefulWidget {
   const UH_Profile({super.key});

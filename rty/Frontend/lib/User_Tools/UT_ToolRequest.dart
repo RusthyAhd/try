@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:quickalert/quickalert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tap_on/User_Tools/UT_ProviderOrderStatus.dart';
-
 import 'package:http/http.dart' as http;
 
 class UT_ToolRequest extends StatefulWidget {
@@ -52,19 +50,18 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
 
   Future<void> _submitOrder(double totalAmount) async {
     try {
+      setState(() => _isLoading = true);
       final baseURL = dotenv.env['BASE_URL'];
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
 
-      // Complete order data with all required fields
+      // Prepare order data
       final orderData = {
+        'order_id': 'TO-${DateTime.now().millisecondsSinceEpoch}',
         'tool_id': widget.product['_id'] ?? '',
         'shop_id': widget.product['shop_id'] ?? '',
-        'customer_id': _userId,
-        'customer_name': _userName,
-        'customer_address': _userAddress ?? 'Default Address',
-        'customer_location': _userLocation ?? 'Default Location',
-        'customer_number': _userPhone,
+        'customer_name': 'Guest User',
+        'customer_address': _addressController.text,
+        'customer_location': _locationController.text,
+        'customer_number': '0000000000',
         'title': widget.product['title'] ?? '',
         'qty': quantity,
         'days': 1,
@@ -73,22 +70,34 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
         'date': DateTime.now().toIso8601String(),
       };
 
-      // Navigate to status page immediately
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => UT_ProviderOrderStatus(
-            provider: widget.product,
-            status: 'pending',
-            order: orderData,
-          ),
-        ),
+      final response = await http.post(
+        Uri.parse('$baseURL/tool-order/new'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(orderData),
       );
+
+      if (response.statusCode == 200) {
+        // Navigate to status page on success
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UT_ProviderOrderStatus(
+              provider: widget.product,
+              status: 'pending',
+              order: orderData,
+            ),
+          ),
+        );
+      } else {
+        throw Exception('Failed to place order');
+      }
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -265,22 +274,7 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
 
                       ],
                     ),
-                    SizedBox(height: screenHeight * 0.04),
-                    TextField(
-                      controller: _addressController,
-                      decoration: InputDecoration(
-                        labelText: 'Delivery Address',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    TextField(
-                      controller: _locationController,
-                      decoration: InputDecoration(
-                        labelText: 'Location',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+          
                     SizedBox(height: screenHeight * 0.04),
                     Center(
                       child: ElevatedButton(

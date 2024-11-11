@@ -71,19 +71,12 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
 
   Future<void> getAllTools() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
       final baseURL = dotenv.env['BASE_URL']; // Get the base URL
-      final token =
-          prefs.getString('token'); // Get the token from shared preferences
 
-      final coordinates = await getCoordinatesFromCity(widget.userLocation) .timeout(
-          const Duration(seconds: 10),
-          onTimeout: () => throw TimeoutException('Location service timeout'),
-        );
-        if (coordinates == null) {
-      throw Exception('Failed to get coordinates');
-    }
-    
+      final coordinates = await getCoordinatesFromCity(widget.userLocation).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw TimeoutException('Location service timeout'),
+      );
 
       setState(() {
         _latitude = coordinates['latitude'] ?? 6.9271;
@@ -92,20 +85,20 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
 
       final bodyData = {
         'category': widget.tool,
-        "location_long": coordinates['longitude'],
-        "location_lat": coordinates['latitude'],
+        'location_long': coordinates['longitude'],
+        'location_lat': coordinates['latitude'],
       };
 
       final response = await http.post(
         Uri.parse('$baseURL/shop/get/all/category/location'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': '$token',
         },
         body: jsonEncode(bodyData),
-      ); // Send a POST request to the API
-      final data = jsonDecode(response.body); // Decode the response
-      final status = data['status']; // Get the status from the response
+      );
+
+      final data = jsonDecode(response.body);
+      final status = data['status'];
 
       debugPrint(data.toString());
 
@@ -114,6 +107,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
         if (services.length > 0) {
           List<Map<String, dynamic>> providers = [];
           Set<google_maps.Marker> providerMarkers = {};
+          
           for (var service in services) {
             providers.add({
               'id': service['_id'] ?? 'N/A',
@@ -128,20 +122,18 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
               'location_lat': service['location_lat'],
               'location_long': service['location_long'],
             });
-            if (service['location_lat'] == null ||
-                service['location_long'] == null) {
-              continue;
+
+            if (service['location_lat'] != null && service['location_long'] != null) {
+              providerMarkers.add(
+                google_maps.Marker(
+                  markerId: google_maps.MarkerId(service['shop_name'] ?? 'N/A'),
+                  position: google_maps.LatLng(service['location_lat'], service['location_long']),
+                  infoWindow: google_maps.InfoWindow(title: service['shop_name'] ?? 'N/A'),
+                ),
+              );
             }
-            providerMarkers.add(
-              google_maps.Marker(
-                markerId: google_maps.MarkerId(service['shop_name'] ?? 'N/A'),
-                position: google_maps.LatLng(
-                    service['location_lat'], service['location_long']),
-                infoWindow: google_maps.InfoWindow(
-                    title: service['shop_name'] ?? 'N/A'),
-              ),
-            );
           }
+          
           setState(() {
             serviceProviders.clear();
             serviceProviders.addAll(providers);
@@ -156,7 +148,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
         context: context,
         type: QuickAlertType.error,
         title: 'Oops...',
-        text: 'An error occurred. Please try again.',
+        text: 'Failed to fetch nearby shops. Please try again.',
         backgroundColor: Colors.black,
         titleColor: Colors.white,
         textColor: Colors.white,
@@ -165,7 +157,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
   }
 
   double _calculateDistance(double? lat1, double? lon1) {
-    if (lat1 == null || lon1 == null || _latitude == null || _longitude == null) {
+    if (lat1 == null || lon1 == null) {
       return 0.0; // Return default distance if coordinates are null
     }
     
@@ -445,10 +437,10 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                                       MaterialPageRoute(
                                         builder: (context) => UT_ToolMenu(
                                           shopName: provider['shop_name'] ?? 'N/A',
-                                          shopId: provider['id'] ?? 'N/A',
+                                          shopId: provider['id'] ?? 'N/A', 
                                           shopEmail: provider['email'] ?? 'N/A',
                                           shopPhone: provider['phone'] ?? 'N/A',
-                                          product: null, // Remove this or pass proper product data
+                                          product: 'YourProduct', // Add the required product argument
                                         ),
                                       ),
                                     );

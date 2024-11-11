@@ -9,8 +9,8 @@ import 'package:tap_on/Home%20page.dart';
 import 'package:tap_on/Tool_Provider/TP_Login.dart';
 import 'package:tap_on/User_Home/UH_Profile.dart';
 import 'package:tap_on/constants.dart'; // Importing constants
-import 'package:quickalert/quickalert.dart'; // Importing quickalert for showing alerts
-import 'package:tap_on/widgets/Loading.dart'; // Importing Loading widget for showing loading dialogs
+// Importing quickalert for showing alerts
+// Importing Loading widget for showing loading dialogs
 
 class EnterNumber extends StatefulWidget {
   const EnterNumber({super.key}); // Constructor for EnterNumber widget

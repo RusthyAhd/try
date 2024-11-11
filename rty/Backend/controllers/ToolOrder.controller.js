@@ -4,74 +4,70 @@ const ToolOrderModel = require('../models/ToolOrder.model')
 const ShopOwner = require('../models/Owner.model')
 const OTPGateWay = require("../utils/OTPGateway");
 
-exports.addNewOrder = async (req, res, next) => {
-    try {
-        const {
-            tool_id,
-            shop_id,
-            customer_id,
-            customer_name,
-            customer_address,
-            customer_location,
-            customer_number,
-            title,
-            qty,
-            days,
-            total_price,
-            status,
-            date
-        } = req.body;
+exports.addNewOrder = async (req, res) => {
+  try {
+    const {
+      order_id,
+      tool_id,
+      shop_id, 
+      customer_name,
+      customer_address,
+      customer_location,
+      customer_number,
+      title,
+      qty,
+      days,
+      total_price,
+      status,
+      date
+    } = req.body;
 
-        // Validate required fields
-        if (!tool_id || !shop_id || !customer_id || !customer_name || 
-            !customer_address || !customer_location || !customer_number || 
-            !title || !qty || !days || !total_price || !status || !date) {
-            return res.status(400).send(
-                new CustomResponse(400, 'All fields are required!')
-            );
-        }
-
-        // Generate order ID
-        const order_id = 'TO-' + Date.now();
-
-        // Create new order
-        const newToolOrder = new ToolOrderModel({
-            order_id,
-            tool_id,
-            shop_id,
-            customer_id,
-            customer_name,
-            customer_address,
-            customer_location,
-            customer_number,
-            title,
-            qty,
-            days,
-            total_price,
-            status,
-            date: new Date(date)
-        });
-
-        await newToolOrder.save();
-
-        res.status(200).send(
-            new CustomResponse(
-                200,
-                'Order created successfully',
-                { order_id }
-            )
-        );
-
-    } catch (error) {
-        console.error('Error creating order:', error);
-        res.status(500).send(
-            new CustomResponse(
-                500,
-                'Failed to create order',
-                { error: error.message }
-            )
-        );
+    // Validate required fields
+    if (!order_id || !tool_id || !shop_id || !customer_name || 
+        !customer_address || !customer_location || !title || 
+        !qty || !total_price || !status || !date) {
+      return res.status(400).send(
+        new CustomResponse(400, 'All fields are required!')
+      );
     }
+
+    // Create new order
+    const newToolOrder = new ToolOrderModel({
+      order_id,
+      tool_id,
+      shop_id,
+      customer_name,
+      customer_address, 
+      customer_location,
+      customer_number,
+      title,
+      qty,
+      days,
+      total_price,
+      status,
+      date: new Date(date)
+    });
+
+    await newToolOrder.save();
+
+    res.status(200).send(
+      new CustomResponse(
+        200,
+        'Order created successfully',
+        { order_id }
+      )
+    );
+
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).send(
+      new CustomResponse(
+        500,
+        'Failed to create order',
+        { error: error.message }
+      )
+    );
+  }
 };
 
 exports.changeStatus = async (req, res, next) => {
