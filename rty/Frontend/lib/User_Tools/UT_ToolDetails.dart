@@ -138,12 +138,12 @@ class ToolDetails extends StatelessWidget {
           style: TextStyle(
               fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.orangeAccent,
+        backgroundColor: Colors.white,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.orangeAccent, Colors.yellow[700]!],
+            colors: [Colors.green[600]!, Colors.green[400]!],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
