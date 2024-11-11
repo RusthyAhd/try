@@ -81,8 +81,7 @@ app.use('/api/v1/to',ToolOrderRoute)
 app.use('/api/v1/service',ServiceRoute)
 app.use('/api/v1/so',ServiceOrderRoute)
 app.use('/api/v1/profile',userRoutes);
-
-
+app.use('/api/v1', require('./routes/ToolOrderRoutes'));
 // this should always be the end of the routs
 //this is for unhandled routes
 app.all('*',(

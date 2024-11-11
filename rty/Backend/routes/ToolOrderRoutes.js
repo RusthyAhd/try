@@ -16,4 +16,6 @@ router.post('/get/all/date/order',  ToolOrderController.findOrdersDateOrId)
 
 router.get('/get/all/:shop_id',  ToolOrderController.getAllOrdersByShopId)
 
+router.post('/tool-order/new', ToolOrderController.addNewOrder)
+
 module.exports = router;

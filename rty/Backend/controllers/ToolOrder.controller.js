@@ -9,7 +9,8 @@ exports.addNewOrder = async (req, res) => {
     const {
       order_id,
       tool_id,
-      shop_id, 
+      shop_id,
+      customer_id,
       customer_name,
       customer_address,
       customer_location,
@@ -22,22 +23,14 @@ exports.addNewOrder = async (req, res) => {
       date
     } = req.body;
 
-    // Validate required fields
-    if (!order_id || !tool_id || !shop_id || !customer_name || 
-        !customer_address || !customer_location || !title || 
-        !qty || !total_price || !status || !date) {
-      return res.status(400).send(
-        new CustomResponse(400, 'All fields are required!')
-      );
-    }
-
     // Create new order
     const newToolOrder = new ToolOrderModel({
       order_id,
       tool_id,
       shop_id,
+      customer_id,
       customer_name,
-      customer_address, 
+      customer_address,
       customer_location,
       customer_number,
       title,
