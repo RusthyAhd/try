@@ -429,9 +429,9 @@ class _UH_ProfileState extends State<UH_Profile> {
                               firstDate: DateTime(1900),
                               lastDate: DateTime(2101),
                             );
-                            if (pickedDate != null && pickedDate != birthday) {
+                            if (pickedDate != birthday) {
                               setState(() {
-                                birthday = pickedDate;
+                                birthday = pickedDate!;
                               });
                             }
                           },

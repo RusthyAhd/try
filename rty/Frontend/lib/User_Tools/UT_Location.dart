@@ -110,6 +110,7 @@ class _UT_LocationState extends State<UT_Location> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.green[700],
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
@@ -197,6 +198,7 @@ class _UT_LocationState extends State<UT_Location> {
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   backgroundColor: Colors.green,
+                  foregroundColor: Colors.white
                 ),
               ),
             ),
@@ -320,10 +322,11 @@ class _UT_LocationState extends State<UT_Location> {
                   //         builder: (context) => UT_NearbyShops()));
                 },
                 icon: Icon(Icons.search),
-                label: Text('Find Shops Near Me '),
+                label: Text('Find Shops Near Me ',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 60, vertical: 20),
                   backgroundColor: Colors.green[600]!,
+                  foregroundColor: Colors.white
                 ),
               ),
             ),

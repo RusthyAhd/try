@@ -87,7 +87,7 @@ class _TP_HistoryState extends State<TP_History> {
     return Scaffold(
       appBar: AppBar(
         title: Text('History'),
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Colors.green[700],
       ),
       body: Column(
         children: [
@@ -116,15 +116,7 @@ class _TP_HistoryState extends State<TP_History> {
                 ),
                 SizedBox(width: 8.0),
                 // Search field for Order ID
-                Expanded(
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Order ID',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.0),
+               
                 // Reset Button
                 ElevatedButton(
                   onPressed: () {
@@ -151,38 +143,7 @@ class _TP_HistoryState extends State<TP_History> {
                 );
               },
             ),
-            // ListView(
-            //   children: [
-            //     orderItem(
-            //       status: 'RENTED',
-            //       subStatus: '2ND ORDER',
-            //       orderId: '162267901',
-            //       date: '12 Sept 2024, 9:31 am',
-            //       itemCount: 4,
-            //       itemname: 'Hammer',
-            //       statusColor: Colors.green,
-            //     ),
-            //     orderItem(
-            //       status: 'RENTED',
-            //       subStatus: 'NEW CUSTOMER',
-            //       orderId: '162250430',
-            //       date: '11 Sept 2024, 12:15 pm',
-            //       itemCount: 1,
-            //       itemname: 'Hammer',
-            //       statusColor: Colors.green,
-            //     ),
-            //     orderItem(
-            //       status: 'CANCELLED',
-            //       subStatus: 'NEW CUSTOMER | PASSENGER',
-            //       reason: 'Change my mind',
-            //       orderId: '162246651',
-            //       date: '11 Sept 2024, 8:36 am',
-            //       itemCount: 2,
-            //       itemname: 'Hammer',
-            //       statusColor: Colors.red,
-            //     ),
-            //   ],
-            // ),
+           
           ),
         ],
       ),

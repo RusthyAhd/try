@@ -168,6 +168,7 @@ class _TP_LoginState extends State<TP_Login> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
+                  foregroundColor: Colors.orange,
                   padding: EdgeInsets.symmetric(vertical: 15),
                   textStyle: TextStyle(fontSize: 18),
                 ),
@@ -205,7 +206,7 @@ class _TP_LoginState extends State<TP_Login> {
                   ),
                   side: BorderSide(color: Colors.green),
                 ),
-                child: Text('Register as Shop Owner'),
+                child: Text('Register for Selling'),
               ),
             ],
           ),

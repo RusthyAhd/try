@@ -43,21 +43,19 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
   Future<void> _loadProductFromPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? productString = prefs.getString('selectedProduct');
-    if (productString != null) {
-      Map<String, dynamic> productMap = jsonDecode(productString);
-      Cart.addToCart(CartItem(
-        name: productMap['title'],
-        category: productMap['category'],
-        price: double.parse(productMap['price']),
-        imageUrl: productMap['image'],
-        tag: productMap['tag'],
-        quantity: int.parse(productMap['quantity']),
-        shopEmail: productMap['shopEmail'],
-        product: productMap,
-      ));
-      setState(() {});
+    Map<String, dynamic> productMap = jsonDecode(productString!);
+    Cart.addToCart(CartItem(
+      name: productMap['title'],
+      category: productMap['category'],
+      price: double.parse(productMap['price']),
+      imageUrl: productMap['image'],
+      tag: productMap['tag'],
+      quantity: int.parse(productMap['quantity']),
+      shopEmail: productMap['shopEmail'],
+      product: productMap,
+    ));
+    setState(() {});
     }
-  }
 
   Future<void> _checkout() async {
     LoadingDialog.show(context);

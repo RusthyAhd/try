@@ -33,30 +33,6 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
   final Set<google_maps.Marker> _markers = {};
 
   final List<Map<String, dynamic>> serviceProviders = [
-    // {
-    //   'id': '6710fa1daf3e9327c922ca0d',
-    //   'name': 'Icom hardware',
-    //   'address': 'ViharaMahathevi Park Road,Town Hall , Colombo',
-    //   'rating': 4.5,
-    //   'Shipping': 'Free Shipping ',
-    //   'image': 'assets/images/muhammed.jpeg',
-    // },
-    // {
-    //   'id': '6710fa1daf3e9327c922ca0d',
-    //   'name': 'Salman Store',
-    //   'address': 'No.19,Old Boc Lane Kinniya-04',
-    //   'rating': 2.9,
-    //   'Shipping': 'Free Shipping ',
-    //   'image': 'assets/images/salman.jpeg',
-    // },
-    // {
-    //   'id': '6710fa1daf3e9327c922ca0d',
-    //   'name': 'Guy Hawkins',
-    //   'address': 'Diyagama,Homagama,colombo-5.',
-    //   'rating': 4.0,
-    //   'Shipping': 'Free Shipping ',
-    //   'image': 'assets/images/sarukan.jpeg',
-    // },
   ];
 
   @override
@@ -181,29 +157,10 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Applying a Gradient Background
-      body: Container(
-        decoration: BoxDecoration(
-                   gradient: LinearGradient(
-            colors: [Color.fromARGB(255, 47, 221, 105), Color.fromARGB(255, 17, 202, 79), Color.fromARGB(255, 45, 251, 114), const Color.fromARGB(255, 45, 251, 182)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        
-        child: Column(
-          
-          children: [
-            // AppBar with Custom Styling
-            SafeArea(
-             
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16.0, horizontal: 2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
+       appBar: AppBar(
+        title: const Text('Nearby Shops'),
+        backgroundColor: Colors.green[700],
+       leading:  IconButton(
                       icon:
                           Icon(Icons.arrow_back, color: Colors.black, size: 30),
                       onPressed: () {
@@ -213,65 +170,19 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                                 builder: (context) => HomePage()));
                       },
                     ),
-                    const Text(
-                      'Nearby Tool Shops',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        
-                      ),
-                    ),
-                    SizedBox(width: 30),
-                    // Placeholder to balance the title alignment
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-
-            //Map Placeholder with Glassmorphism Effect
-            // Container(
-            //   height: 250,
-            //   margin: EdgeInsets.symmetric(horizontal: 20),
-            //   decoration: BoxDecoration(
-            //     color: Colors.white.withOpacity(0.2),
-            //     borderRadius: BorderRadius.circular(20),
-            //     boxShadow: const [
-            //       BoxShadow(
-            //         color: Colors.black26,
-            //         blurRadius: 10,
-            //         offset: Offset(0, 5),
-            //       )
-            //     ],
-            //     border:
-            //         Border.all(color: Colors.white.withOpacity(0.4), width: 1),
-            //   ),
-            //   child: FlutterMap(
-            //     options: MapOptions(
-            //       initialCenter: latlong.LatLng(
-            //           _latitude, _longitude), // Starting position
-            //       initialZoom: 13.0,
-            //       onTap: (tapPosition, point) {
-            //         //_addMarker(point);
-            //       },
-            //     ),
-            //     children: [
-            //       TileLayer(
-            //         urlTemplate:
-            //             "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            //       ),
-            //       //MarkerLayer(markers: _markers),
-            //       flutter_map_lib.MarkerLayer(markers: _markers),
-            //     ],
-            //   ),
-            // ),
-
+      ),         
+      // Applying a Gradient Background
+      body: Container( 
+        color: Colors.green,
+         
+  child: Column( 
+             
+          children: [
             Container(
               height: 250,
               margin: EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.green.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: const [
                   BoxShadow(
@@ -281,7 +192,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                   )
                 ],
                 border:
-                    Border.all(color: Colors.white.withOpacity(0.4), width: 1),
+                    Border.all(color: Colors.green.withOpacity(0.4), width: 1),
               ),
               child: Expanded(
                 child: Stack(
@@ -298,16 +209,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                       markers: _markers,
                     ),
 
-                    // FloatingActionButton positioned on the map
-                    // Positioned(
-                    //   bottom: 10,
-                    //   right: 10,
-                    //   child: FloatingActionButton(
-                    //     onPressed: _goToCurrentLocation,
-                    //     backgroundColor: Colors.grey,
-                    //     child: Icon(Icons.add_location_alt),
-                    //   ),
-                    // ),
+                  
                   ],
                 ),
               ),
@@ -335,7 +237,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           gradient: LinearGradient(
-                            colors: [Colors.white, Colors.grey[200]!],
+                            colors: [const Color.fromARGB(255, 183, 245, 155), Colors.green!],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),

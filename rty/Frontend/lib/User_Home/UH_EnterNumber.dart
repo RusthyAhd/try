@@ -58,7 +58,7 @@ class _EnterNumberState extends State<EnterNumber> {
               // Stack to overlay widgets
               children: [
                 Image.asset(
-                  'assets/images/enternumber.webp', // Display an image
+                  'assets/images/enternu.jpg', // Display an image
                   height: height * 0.50, // Set the height of the image
                   width: width, // Set the width of the image
                   fit: BoxFit.cover, // Cover the entire area
@@ -70,7 +70,7 @@ class _EnterNumberState extends State<EnterNumber> {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.white], // Gradient overlay
+                      colors: [Colors.transparent, Colors.green], // Gradient overlay
                     ),
                   ),
                 ),
@@ -91,7 +91,7 @@ class _EnterNumberState extends State<EnterNumber> {
                   ),
                   const Text(
                     slogan, // Display the slogan
-                    style: TextStyle(color: Colors.grey), // Set the text color
+                    style: TextStyle(color: Colors.orange), // Set the text color
                   ),
                   SizedBox(
                     height: 20, // Add some space
@@ -155,7 +155,7 @@ class _EnterNumberState extends State<EnterNumber> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.greenAccent, // Set the button color
+                      backgroundColor: const Color.fromARGB(255, 6, 85, 10), // Set the button color
                       padding: const EdgeInsets.symmetric(
                         horizontal: 40, // Set horizontal padding
                         vertical: 15, // Set vertical padding
@@ -173,17 +173,17 @@ class _EnterNumberState extends State<EnterNumber> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 45), // Add some space
+                  const SizedBox(height: 25), // Add some space
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) => TP_Login()));
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent, // Set the button color
+                      backgroundColor: const Color.fromARGB(255, 10, 80, 5), // Set the button color
                       padding: const EdgeInsets.symmetric(
                         horizontal: 40, // Set horizontal padding
-                        vertical: 15, // Set vertical padding
+                        vertical: 20, // Set vertical padding
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10), // Set the border radius
@@ -193,7 +193,7 @@ class _EnterNumberState extends State<EnterNumber> {
                       'Provider Login', // Set the button text
                       style: TextStyle(
                         fontSize: 16, // Set the font size
-                        color: Colors.white, // Set the text color
+                        color: Colors.orange, // Set the text color
                         fontWeight: FontWeight.bold, // Set the font weight
                       ),
                     ),

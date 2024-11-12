@@ -247,6 +247,7 @@ class _TP_DashboardState extends State<TP_Dashboard> {
             ),
             // Log Out button
             ElevatedButton(
+              
               onPressed: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 prefs.remove('toolProviderId');
@@ -257,7 +258,7 @@ class _TP_DashboardState extends State<TP_Dashboard> {
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.black,
-                backgroundColor: Colors.red,
+                backgroundColor: Colors.orange,
         
               ),
               child: Text('Log Out'),
@@ -284,19 +285,6 @@ class _TP_DashboardState extends State<TP_Dashboard> {
                   );
                 },
               ),
-              // Handle the "Accept" button press
-              // ListView(
-              //   children: [
-              //     orderItem(
-              //       subStatus: '2ND ORDER',
-              //       orderId: '162267901',
-              //       date: '12 Sept 2024, 9:31 am',
-              //       itemCount: 4,
-              //       itemname: 'Hammer',
-              //       statusColor: Colors.green,
-              //     ),
-              //   ],
-              // ),
             ),
             const Padding(
               padding: EdgeInsets.all(16.0),

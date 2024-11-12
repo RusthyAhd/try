@@ -128,6 +128,7 @@ class _TP_LocationState extends State<TP_Location> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.green[700],
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
@@ -139,6 +140,7 @@ class _TP_LocationState extends State<TP_Location> {
           },
         ),
         title: Text('Set Delivery Location'),
+      
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
