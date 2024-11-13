@@ -30,6 +30,7 @@ class _UH_ProfileState extends State<UH_Profile> {
   String address = '';
   String location = '';
   File? profilePhoto;
+  String? profilePhotoUrl;
   bool _isLoading = true;
 
   @override
@@ -68,6 +69,9 @@ class _UH_ProfileState extends State<UH_Profile> {
           }
           
           gender = user['gender'] ?? 'Male';
+          if (user['profilePhoto'] != null && user['profilePhoto'].isNotEmpty) {
+            profilePhotoUrl = user['profilePhoto'];
+          }
           _isLoading = false;
         });
       } else {
@@ -363,10 +367,10 @@ class _UH_ProfileState extends State<UH_Profile> {
                               )
                             : CircleAvatar(
                                 radius: 50.0,
-                                child: Icon(
-                                  Icons.person,
-                                  size: 50.0,
-                                ),
+                                backgroundImage: NetworkImage(profilePhotoUrl ?? ''),
+                                child: profilePhotoUrl == null
+                                    ? Icon(Icons.person, size: 50.0)
+                                    : null,
                               ),
                         Positioned(
                           bottom: 0,
