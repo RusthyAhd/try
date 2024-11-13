@@ -169,7 +169,7 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
     return Scaffold(
       
       appBar: AppBar(
-        backgroundColor: Colors.amber,
+        backgroundColor: Colors.green,
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -185,7 +185,7 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
                 Cart.cartItems.clear();
               });
             },
-            child: const Text("Clear", style: TextStyle(color: Colors.red)),
+            child: const Text("Clear", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -235,7 +235,7 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
                 ElevatedButton(
                   onPressed: _showCheckoutConfirmation,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.green,
                   ),
                   child: const Text("Checkout"),
                 ),
