@@ -83,17 +83,36 @@ class _UH_ProfileState extends State<UH_Profile> {
     }
   }
 
+  Future<String?> uploadImage(File imageFile) async {
+    final baseURL = dotenv.env['BASE_URL'];
+    final request = http.MultipartRequest('POST', Uri.parse('$baseURL/upload'));
+    request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      final responseData = await response.stream.bytesToString();
+      final data = jsonDecode(responseData);
+      return data['filePath']; // Assuming the server returns the file path
+    } else {
+      throw Exception('Failed to upload image');
+    }
+  }
+
   Future<void> createOrUpdateProfile() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     try {
       setState(() => _isLoading = true);
-      
+
       final prefs = await SharedPreferences.getInstance();
       final phoneNumber = prefs.getString('phoneNumber');
-      
+
       if (phoneNumber == null) {
         throw Exception('Phone number not found');
+      }
+
+      String? profilePhotoPath;
+      if (profilePhoto != null) {
+        profilePhotoPath = await uploadImage(profilePhoto!);
       }
 
       final requestBody = {
@@ -104,7 +123,7 @@ class _UH_ProfileState extends State<UH_Profile> {
         'gender': gender,
         'address': _addressController.text.trim(),
         'location': _locationController.text.trim(),
-        'profilePhoto': profilePhoto?.path ?? 'N/A',
+        'profilePhoto': profilePhotoPath ?? 'N/A',
       };
 
       print('Request body: $requestBody'); // Debug log
@@ -133,9 +152,9 @@ class _UH_ProfileState extends State<UH_Profile> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         await saveToPrefs(requestBody);
-        
+
         if (!mounted) return;
-        
+
         await QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
