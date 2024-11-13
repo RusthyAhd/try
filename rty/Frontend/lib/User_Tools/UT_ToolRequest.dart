@@ -49,24 +49,31 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
   }
 
   Future<void> _submitOrder(double totalAmount) async {
+    if (_userPhone == null || _userPhone!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User phone number is missing. Please update your profile.')),
+      );
+      return;
+    }
+  
     try {
       setState(() => _isLoading = true);
       final baseURL = dotenv.env['BASE_URL'];
-
+  
       if (baseURL == null) {
         throw Exception('BASE_URL not found in environment');
       }
-
+  
       // Update orderData with correct fields from product
       final orderData = {
         'order_id': 'TO-${DateTime.now().millisecondsSinceEpoch}',
         'tool_id': widget.product['id'] ?? '',
         'shop_id': widget.product['shop_id'] ?? '', // Ensure shop_id is passed from UT_ToolMenu
-        'customer_id': 'GUEST-${DateTime.now().millisecondsSinceEpoch}',
-        'customer_name': _addressController.text,
-        'customer_address': _addressController.text,
-        'customer_location': _locationController.text,
-        'customer_number': widget.shopEmail,
+        'customer_id': _userPhone, // Use user's phone number as customer_id
+        'customer_name': _userName,
+        'customer_address': _userAddress,
+        'customer_location': _userLocation,
+        'customer_number': _userPhone,
         'title': widget.product['title'] ?? '',
         'qty': quantity,
         'days': 1,
@@ -74,9 +81,9 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
         'status': 'pending',
         'date': DateTime.now().toIso8601String(),
       };
-
+  
       print('Submitting order data: $orderData'); // Debug log
-
+  
       final response = await http.post(
         Uri.parse('$baseURL/tool-order/new'),
         headers: {
@@ -84,10 +91,10 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
         },
         body: jsonEncode(orderData),
       );
-
+  
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
-
+  
       if (response.statusCode == 200) {
         if (!mounted) return;
         

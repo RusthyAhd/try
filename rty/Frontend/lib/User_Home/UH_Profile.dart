@@ -214,13 +214,11 @@ class _UH_ProfileState extends State<UH_Profile> {
   Future<void> saveToPrefs(Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
     await Future.wait([
-      prefs.setString('phoneNumber', data['phoneNumber'] ?? ''),
-      prefs.setString('fullName', data['fullName'] ?? ''),
-      prefs.setString('email', data['email'] ?? ''),
-      prefs.setString('birthday', data['birthday'] ?? ''),
-      prefs.setString('gender', data['gender'] ?? ''),
-      prefs.setString('address', data['address'] ?? ''),
-      prefs.setString('location', data['location'] ?? ''),
+      prefs.setString('userId', data['_id'] ?? ''),
+      prefs.setString('userName', data['fullName'] ?? ''),
+      prefs.setString('userPhone', data['phoneNumber'] ?? ''),
+      prefs.setString('userAddress', data['address'] ?? ''),
+      prefs.setString('userLocation', data['location'] ?? ''),
     ]);
   }
 
