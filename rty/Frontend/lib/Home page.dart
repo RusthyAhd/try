@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             trailing: IconButton(
-              icon: const Icon(Icons.support_agent, color: Colors.green),
+              icon: const Icon(Icons.shopping_cart_checkout_outlined, color: Colors.green),
               onPressed: () {
                 Navigator.push(
                   context,
