@@ -138,7 +138,7 @@ class ToolDetails extends StatelessWidget {
           style: TextStyle(
               fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.green.shade400,
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -282,7 +282,7 @@ class ToolDetails extends StatelessWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
-                        foregroundColor: Colors.yellow,
+                        foregroundColor: Colors.green,
                         padding: EdgeInsets.symmetric(
                             horizontal: screenWidth * 0.1, vertical: 15),
                         textStyle: TextStyle(
@@ -307,7 +307,7 @@ class ToolDetails extends StatelessWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
-                        foregroundColor: Colors.yellow,
+                        foregroundColor: Colors.green,
                         padding: EdgeInsets.symmetric(
                             horizontal: screenWidth * 0.1, vertical: 15),
                         textStyle: TextStyle(
@@ -327,7 +327,7 @@ class ToolDetails extends StatelessWidget {
                             label: Text('Call',
                                 style: TextStyle(color: Colors.black)),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.amber,
+                              backgroundColor: Colors.green[700],
                               side: BorderSide(color: Colors.black),
                             ),
                           ),
@@ -342,7 +342,7 @@ class ToolDetails extends StatelessWidget {
                             label: Text('Message',
                                 style: TextStyle(color: Colors.black)),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.amber,
+                              backgroundColor: Colors.green[700],
                               side: BorderSide(color: Colors.black),
                               
                             ),

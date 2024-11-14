@@ -192,7 +192,7 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.lightGreen[50],
+        backgroundColor: Colors.green[700],
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
@@ -205,7 +205,7 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
         : Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.greenAccent, Colors.green[500]!],
+            colors: [const Color.fromARGB(255, 109, 236, 113), Colors.green[500]!,const Color.fromARGB(255, 57, 146, 60)!],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

@@ -7,7 +7,7 @@ class UT_ShopsConfirm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.amber[600],
+      backgroundColor: Colors.green[600],
       body: SafeArea(
         child: Column(
           children: [

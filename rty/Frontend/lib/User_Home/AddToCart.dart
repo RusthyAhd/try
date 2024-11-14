@@ -44,6 +44,7 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
   Future<void> _loadProductFromPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? productString = prefs.getString('selectedProduct');
+
     if (productString != null) {
       Map<String, dynamic> productMap = jsonDecode(productString);
       Cart.addToCart(CartItem(
@@ -57,8 +58,8 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
         product: productMap,
       ));
       setState(() {});
+
     }
-  }
 
   Future<void> _checkout() async {
     LoadingDialog.show(context);

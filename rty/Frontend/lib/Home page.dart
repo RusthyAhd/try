@@ -110,12 +110,14 @@ class _HomePageState extends State<HomePage> {
               },
               child: CircleAvatar(
                 backgroundColor: Colors.green[700],
+
                 backgroundImage: profilePhotoUrl != null
                     ? NetworkImage(profilePhotoUrl!)
                     : null,
                 child: profilePhotoUrl == null
                     ? const Icon(Icons.person, color: Colors.white)
                     : null,
+
               ),
             ),
             title: Text(
@@ -268,10 +270,10 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('rishaf', style: TextStyle(color: Colors.white)),
+          
         Text(
           'Your one-stop shop for everything!',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Colors.orange, fontSize: 16),
         ),
         ],
       ),

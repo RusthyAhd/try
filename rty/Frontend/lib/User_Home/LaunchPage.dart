@@ -1,79 +1,119 @@
 import 'package:flutter/material.dart';
-
 import 'package:tap_on/User_Home/UH_EnterNumber.dart';
-const String imagePath = 'assets/images/background.jpg';
+
+const String imagePath = 'assets/images/imageb.jpeg';
 
 class LaunchPage extends StatelessWidget {
   const LaunchPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: Colors.green[700],
         body: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
             image: DecorationImage(
               image: AssetImage(imagePath),
               fit: BoxFit.cover,
               colorFilter: ColorFilter.mode(
-                Colors.black.withOpacity(0.3),
+                Colors.green.withOpacity(0.4),
                 BlendMode.darken,
               ),
             ),
           ),
           child: Center(
             child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Directly use the Image.asset widget to display the logo
-                  Image.asset(
-                    'assets/images/logo.png',
-                    width: 500, // Adjust the width as needed
-                    height: 500, // Adjust the height as needed
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 40), 
-                  const Text(
-                    'Discover new interests.',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Spacer(),
+                // Increase the size of the logo
+                SizedBox(
+                  width: screenWidth * 0.95, // Adjust the width as needed
+                  height: screenHeight * 0.5, // Adjust the height as needed
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: Offset(0, 3), // changes position of shadow
+                        ),
+                      ],
+                      borderRadius: BorderRadius.circular(20), // Rounded corners
+                    ),
+                    child: Image.asset(
+                      'assets/images/newlogod.png',
+                      width: screenWidth * 0.9, // Adjust the width as needed
+                      height: screenHeight * 0.25, // Adjust the height as needed
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Empower your team with our application',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
+                ),
+                const SizedBox(height: 50), // Add some space to move the image up
+                const SizedBox(height: 20), // Add some space between logo and text
+                const Text(
+                  'Click here to get started with TapOn',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 10.0,
+                        color: Colors.green,
+                        offset: Offset(8.0, 8.0),
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20), // Adjust the space to move the button up
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EnterNumber()));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 9, 48, 10),
+                    foregroundColor: Colors.orange, // Button color
+                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                    textStyle: TextStyle(fontSize: 16, color: Colors.white),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // Rounded corners
                     ),
-                    textAlign: TextAlign.center,
+                    shadowColor: Colors.black45,
+                    elevation: 10,
                   ),
-                  const SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => EnterNumber()));
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green, // Button color
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        textStyle: TextStyle(fontSize: 16, color: Colors. white)),
-                    child: Text('GET STARTED'),
+                  child: Text('GET STARTED'),
+                ),
+                const SizedBox(height: 30), // Adjust the space below the button
+                const Text(
+                  'Discover new interests.',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 10.0,
+                        color: Colors.green,
+                        offset: Offset(5.0, 5.0),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }
