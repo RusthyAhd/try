@@ -1,8 +1,9 @@
 const CustomResponse = require("../utils/custom.response");
-const ToolModel = require('../models/Tool.model')
-const ToolOrderModel = require('../models/ToolOrder.model')
-const ShopOwner = require('../models/Owner.model')
+const ToolModel = require('../models/Tool.model');
+const ToolOrderModel = require('../models/ToolOrder.model');
+const User = require('../models/newprofilemodels'); // Import the User model
 const OTPGateWay = require("../utils/OTPGateway");
+const mongoose = require('mongoose'); // Import mongoose to use ObjectId
 
 exports.addNewOrder = async (req, res) => {
   try {
@@ -10,11 +11,7 @@ exports.addNewOrder = async (req, res) => {
       order_id,
       tool_id,
       shop_id,
-      customer_id,
-      customer_name,
-      customer_address,
-      customer_location,
-      customer_number,
+      customer_id, // This will be the phone number
       title,
       qty,
       days,
@@ -23,16 +20,27 @@ exports.addNewOrder = async (req, res) => {
       date
     } = req.body;
 
+    // Fetch user details using phone number
+    const user = await User.findOne({ phoneNumber: customer_id });
+    if (!user) {
+      return res.status(404).send(
+        new CustomResponse(
+          404,
+          'User not found'
+        )
+      );
+    }
+
     // Create new order
     const newToolOrder = new ToolOrderModel({
       order_id,
       tool_id,
       shop_id,
-      customer_id,
-      customer_name,
-      customer_address,
-      customer_location,
-      customer_number,
+      customer_id: user._id, // Use user's _id
+      customer_name: user.fullName, // Use user's fullName
+      customer_address: user.address, // Use user's address
+      customer_location: user.location, // Use user's location
+      customer_number: user.phoneNumber, // Use user's phoneNumber
       title,
       qty,
       days,
