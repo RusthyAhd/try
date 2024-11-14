@@ -22,6 +22,7 @@ class addtocart extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       home: ReviewCartPage(),
+      debugShowCheckedModeBanner: false, // Remove the debug banner
     );
   }
 }
@@ -43,18 +44,21 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
   Future<void> _loadProductFromPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? productString = prefs.getString('selectedProduct');
-    Map<String, dynamic> productMap = jsonDecode(productString!);
-    Cart.addToCart(CartItem(
-      name: productMap['title'],
-      category: productMap['category'],
-      price: double.parse(productMap['price']),
-      imageUrl: productMap['image'],
-      tag: productMap['tag'],
-      quantity: int.parse(productMap['quantity']),
-      shopEmail: productMap['shopEmail'],
-      product: productMap,
-    ));
-    setState(() {});
+
+    if (productString != null) {
+      Map<String, dynamic> productMap = jsonDecode(productString);
+      Cart.addToCart(CartItem(
+        name: productMap['title'],
+        category: productMap['category'],
+        price: double.parse(productMap['price']),
+        imageUrl: productMap['pic'], // Ensure the image URL is passed
+        tag: productMap['tag'],
+        quantity: int.parse(productMap['quantity']),
+        shopEmail: productMap['shopEmail'],
+        product: productMap,
+      ));
+      setState(() {});
+
     }
 
   Future<void> _checkout() async {
@@ -165,7 +169,7 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.amber,
+        backgroundColor: Colors.green,
         actions: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -181,7 +185,7 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
                 Cart.cartItems.clear();
               });
             },
-            child: const Text("Clear", style: TextStyle(color: Colors.red)),
+            child: const Text("Clear", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -231,9 +235,10 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
                 ElevatedButton(
                   onPressed: _showCheckoutConfirmation,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.green,
                   ),
-                  child: const Text("Checkout"),
+                  child: const Text("Checkout",
+                  style: TextStyle(color: Colors.white),),
                 ),
               ],
             ),
@@ -278,6 +283,15 @@ class CartItemWidget extends StatelessWidget {
     required this.onRemove,
   });
 
+  bool isBase64(String str) {
+    try {
+      base64Decode(str);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -290,8 +304,10 @@ class CartItemWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Image.network(
-                item.imageUrl,
+              Image(
+                image: isBase64(item.imageUrl)
+                    ? MemoryImage(base64Decode(item.imageUrl))
+                    : NetworkImage(item.imageUrl) as ImageProvider,
                 height: screenWidth * 0.2,
                 width: screenWidth * 0.2,
                 fit: BoxFit.cover,
@@ -310,15 +326,7 @@ class CartItemWidget extends StatelessWidget {
               Text("Rs.${item.price.toStringAsFixed(2)}", style: TextStyle(fontSize: screenWidth * 0.04)),
               Text("(inclusive of all taxes)", style: TextStyle(fontSize: screenWidth * 0.03, color: Colors.grey)),
               const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                color: Colors.red,
-                child: Text(
-                  item.tag,
-                  style: TextStyle(color: Colors.white, fontSize: screenWidth * 0.03),
-                ),
-              ),
-              const SizedBox(height: 8),
+     
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -332,7 +340,7 @@ class CartItemWidget extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: onAdd,
-                    icon: Icon(Icons.add, color: Colors.red, size: screenWidth * 0.06),
+                    icon: Icon(Icons.add, color: Colors.blue, size: screenWidth * 0.06),
                   ),
                 ],
               ),

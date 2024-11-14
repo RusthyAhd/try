@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:tap_on/User_Home/AddToCart.dart';
-
-
-
 import 'package:tap_on/User_Home/UH_EnterNumber.dart';
-
 import 'package:tap_on/User_Home/UH_Notification.dart';
 import 'package:tap_on/User_Home/UH_Profile.dart';
 import 'package:tap_on/User_Tools/UT_Location.dart';
 import 'dart:async';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -19,10 +20,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
   late Timer _timer;
+  String? profilePhotoUrl;
+  String? fullName;
+
   @override
   void initState() {
     super.initState();
     _startAutoScroll();
+    _loadProfileData();
   }
 
   @override
@@ -31,7 +36,8 @@ class _HomePageState extends State<HomePage> {
     _pageController.dispose();
     super.dispose();
   }
- void _startAutoScroll() {
+
+  void _startAutoScroll() {
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       int nextPage = _pageController.page!.toInt() + 1;
       if (nextPage >= 2) {
@@ -44,16 +50,38 @@ class _HomePageState extends State<HomePage> {
       );
     });
   }
+
+  Future<void> _loadProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final phoneNumber = prefs.getString('phoneNumber');
+    
+    if (phoneNumber == null) return;
+
+    final baseURL = dotenv.env['BASE_URL'];
+    final response = await http.get(
+      Uri.parse('$baseURL/profile/$phoneNumber'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final user = data['data']['user'];
+      setState(() {
+        profilePhotoUrl = user['profilePhoto'];
+        fullName = user['fullName'];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:Colors.green[50],
+      backgroundColor: Colors.green[50],
       appBar: AppBar(
-       title: const Text('TapOn', style: TextStyle(color: Colors.white)),
+        title: const Text('TapOn', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green[700],
         elevation: 4,
         leading: IconButton(
-         icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const EnterNumber()));
@@ -82,17 +110,22 @@ class _HomePageState extends State<HomePage> {
               },
               child: CircleAvatar(
                 backgroundColor: Colors.green[700],
-                child: const Icon(Icons.person, color: Colors.orange),
+
+                backgroundImage: profilePhotoUrl != null
+                    ? NetworkImage(profilePhotoUrl!)
+                    : null,
+                child: profilePhotoUrl == null
+                    ? const Icon(Icons.person, color: Colors.white)
+                    : null,
+
               ),
             ),
-
-            title: const Text(
-              "Profile",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            title: Text(
+              fullName ?? "Profile",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
-             trailing: IconButton(
-              icon: const Icon(Icons.support_agent, color: Colors.green),
-
+            trailing: IconButton(
+              icon: const Icon(Icons.shopping_cart_checkout_outlined, color: Colors.green),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -101,7 +134,6 @@ class _HomePageState extends State<HomePage> {
               },
             ),
           ),
-
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
             child: Text(
