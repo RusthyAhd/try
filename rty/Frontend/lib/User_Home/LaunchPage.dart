@@ -39,28 +39,32 @@ class LaunchPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black54.withOpacity(0.5),
                           spreadRadius: 5,
                           blurRadius: 7,
                           offset: Offset(0, 3), // changes position of shadow
                         ),
                       ],
-                      borderRadius: BorderRadius.circular(20), // Rounded corners
+                      borderRadius:
+                          BorderRadius.circular(20), // Rounded corners
                     ),
                     child: Image.asset(
                       'assets/images/newlogod.png',
                       width: screenWidth * 0.9, // Adjust the width as needed
-                      height: screenHeight * 0.25, // Adjust the height as needed
+                      height:
+                          screenHeight * 0.25, // Adjust the height as needed
                     ),
                   ),
                 ),
-                const SizedBox(height: 50), // Add some space to move the image up
-                const SizedBox(height: 20), // Add some space between logo and text
+                const SizedBox(
+                    height: 50), // Add some space to move the image up
+                const SizedBox(
+                    height: 20), // Add some space between logo and text
                 const Text(
                   'Click here to get started with TapOn',
                   style: TextStyle(
                     fontSize: 20,
-                    color: Colors.orange,
+                    color: Colors.white70,
                     fontWeight: FontWeight.bold,
                     shadows: [
                       Shadow(
@@ -72,23 +76,23 @@ class LaunchPage extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20), // Adjust the space to move the button up
+                const SizedBox(
+                    height: 20), // Adjust the space to move the button up
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => EnterNumber()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => EnterNumber()));
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 9, 48, 10),
+                    backgroundColor: const Color.fromARGB(255, 4, 71, 239),
                     foregroundColor: Colors.orange, // Button color
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                     textStyle: TextStyle(fontSize: 16, color: Colors.white),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30), // Rounded corners
+                      borderRadius:
+                          BorderRadius.circular(30), // Rounded corners
                     ),
-                    shadowColor: Colors.black45,
+                    shadowColor: Colors.white54,
                     elevation: 10,
                   ),
                   child: Text('GET STARTED'),
@@ -99,7 +103,7 @@ class LaunchPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                    color: Colors.white60,
                     shadows: [
                       Shadow(
                         blurRadius: 10.0,

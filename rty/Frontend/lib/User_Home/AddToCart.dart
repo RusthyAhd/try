@@ -7,248 +7,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:tap_on/widgets/Loading.dart';
 
-class Cart {
-  static List<CartItem> cartItems = [];
-
-  static void addToCart(CartItem item) {
-    cartItems.add(item);
-  }
-}
-
-class addtocart extends StatelessWidget {
-  const addtocart({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: ReviewCartPage(),
-      debugShowCheckedModeBanner: false, // Remove the debug banner
-    );
-  }
-}
-
-class ReviewCartPage extends StatefulWidget {
-  const ReviewCartPage({super.key});
-
-  @override
-  _ReviewCartPageState createState() => _ReviewCartPageState();
-}
-
-class _ReviewCartPageState extends State<ReviewCartPage> {
-  @override
-  void initState() {
-    super.initState();
-    _loadProductFromPreferences();
-  }
-
-  Future<void> _loadProductFromPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? productString = prefs.getString('selectedProduct');
-
-    if (productString != null) {
-      Map<String, dynamic> productMap = jsonDecode(productString);
-      Cart.addToCart(CartItem(
-        name: productMap['title'],
-        category: productMap['category'],
-        price: double.parse(productMap['price']),
-        imageUrl: productMap['pic'], // Ensure the image URL is passed
-        tag: productMap['tag'],
-        quantity: int.parse(productMap['quantity']),
-        shopEmail: productMap['shopEmail'],
-        product: productMap,
-      ));
-      setState(() {});
-
-    }
-
-  Future<void> _checkout() async {
-    LoadingDialog.show(context);
-
-    try {
-      final baseURL = dotenv.env['BASE_URL'];
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-
-      for (var item in Cart.cartItems) {
-        final bodyData = {
-          "tool_id": item.name, // Assuming tool_id is the name of the item
-          "shop_id": item.shopEmail,
-          "title": item.name,
-          "qty": item.quantity,
-          "days": 1,
-          "status": "pending",
-          "date": DateTime.now().toString(),
-        };
-
-        final response = await http.post(
-          Uri.parse('$baseURL/to/new'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': '$token',
-          },
-          body: jsonEncode(bodyData),
-        );
-
-        final data = jsonDecode(response.body);
-
-        if (data['status'] != 200) {
-          LoadingDialog.hide(context);
-          _showErrorAlert();
-          return;
-        }
-      }
-
-      LoadingDialog.hide(context);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(),
-        ),
-      );
-    } catch (e) {
-      LoadingDialog.hide(context);
-      debugPrint('Something went wrong $e');
-      _showErrorAlert();
-    }
-  }
-
-  void _showErrorAlert() {
-    QuickAlert.show(
-      context: context,
-      type: QuickAlertType.error,
-      title: 'Oops...',
-      text: 'Sorry, something went wrong',
-      backgroundColor: Colors.black,
-      titleColor: Colors.white,
-      textColor: Colors.white,
-    );
-  }
-
-  void _showCheckoutConfirmation() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Checkout'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ...Cart.cartItems.map((item) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Tool: ${item.name}'),
-                  Text('Amount: LKR ${item.price} x ${item.quantity}'),
-                  Text('Total: LKR ${item.price * item.quantity}'),
-                  SizedBox(height: 10),
-                ],
-              )),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _checkout();
-              },
-              child: const Text('Confirm'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () {
-              Navigator.push(context,
-               MaterialPageRoute(builder: (context) => HomePage()));
-            },
-          ),
-          const Spacer(),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                Cart.cartItems.clear();
-              });
-            },
-            child: const Text("Clear", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Cart.cartItems.isNotEmpty
-                ? ListView.builder(
-                    itemCount: Cart.cartItems.length,
-                    itemBuilder: (context, index) {
-                      return CartItemWidget(
-                        item: Cart.cartItems[index],
-                        onAdd: () {
-                          setState(() {
-                            Cart.cartItems[index].quantity++;
-                          });
-                        },
-                        onRemove: () {
-                          setState(() {
-                            if (Cart.cartItems[index].quantity > 1) {
-                              Cart.cartItems[index].quantity--;
-                            } else {
-                              Cart.cartItems.removeAt(index);
-                            }
-                          });
-                        },
-                      );
-                    },
-                  )
-                : const Center(
-                    child: Text("Your cart is empty"),
-                  ),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: MediaQuery.of(context).size.width * 0.05),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 4)],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Rs.${Cart.cartItems.fold<double>(0.0, (sum, item) => sum + item.price * item.quantity).toStringAsFixed(2)}",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                ElevatedButton(
-                  onPressed: _showCheckoutConfirmation,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                  ),
-                  child: const Text("Checkout",
-                  style: TextStyle(color: Colors.white),),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class CartItem {
   final String name;
   final String category;
@@ -269,6 +27,33 @@ class CartItem {
     required this.product,
     this.quantity = 1,
   });
+}
+
+class Cart {
+  static List<CartItem> cartItems = [];
+
+  static void addToCart(CartItem item) {
+    cartItems.add(item);
+  }
+}
+
+class AddToCart extends StatelessWidget {
+  const AddToCart({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: ReviewCartPage(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class ReviewCartPage extends StatefulWidget {
+  const ReviewCartPage({super.key});
+
+  @override
+  _ReviewCartPageState createState() => _ReviewCartPageState();
 }
 
 class CartItemWidget extends StatelessWidget {
@@ -326,7 +111,6 @@ class CartItemWidget extends StatelessWidget {
               Text("Rs.${item.price.toStringAsFixed(2)}", style: TextStyle(fontSize: screenWidth * 0.04)),
               Text("(inclusive of all taxes)", style: TextStyle(fontSize: screenWidth * 0.03, color: Colors.grey)),
               const SizedBox(height: 8),
-     
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -347,6 +131,199 @@ class CartItemWidget extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ReviewCartPageState extends State<ReviewCartPage> {
+  @override
+  void initState() {
+    super.initState();
+    _loadProductFromPreferences();
+  }
+
+  Future<void> _loadProductFromPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? productString = prefs.getString('selectedProduct');
+
+    if (productString != null) {
+      Map<String, dynamic> productMap = jsonDecode(productString);
+      Cart.addToCart(CartItem(
+        name: productMap['title'],
+        category: productMap['category'],
+        price: double.parse(productMap['price']),
+        imageUrl: productMap['pic'],
+        tag: productMap['tag'],
+        quantity: int.parse(productMap['quantity']),
+        shopEmail: productMap['shopEmail'],
+        product: productMap,
+      ));
+      setState(() {});
+    }
+  }
+
+  void _showErrorAlert() {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.error,
+      title: 'Oops...',
+      text: 'Sorry, something went wrong',
+      backgroundColor: Colors.black,
+      titleColor: Colors.white,
+      textColor: Colors.white,
+    );
+  }
+
+  Future<void> _checkout() async {
+    LoadingDialog.show(context);
+
+    try {
+      final baseURL = dotenv.env['BASE_URL'];
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      for (var item in Cart.cartItems) {
+        final bodyData = {
+          "tool_id": item.name,
+          "shop_id": item.shopEmail,
+          "title": item.name,
+          "qty": item.quantity,
+          "days": 1,
+          "status": "pending",
+          "date": DateTime.now().toString(),
+        };
+
+        final response = await http.post(
+          Uri.parse('$baseURL/to/new'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': '$token',
+          },
+          body: jsonEncode(bodyData),
+        );
+
+        final data = jsonDecode(response.body);
+
+        if (data['status'] != 200) {
+          LoadingDialog.hide(context);
+          _showErrorAlert();
+          return;
+        }
+      }
+
+      LoadingDialog.hide(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(),
+        ),
+      );
+    } catch (e) {
+      LoadingDialog.hide(context);
+      debugPrint('Something went wrong $e');
+      _showErrorAlert();
+    }
+  }
+
+  void _showCheckoutConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Checkout'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...Cart.cartItems.map((item) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Tool: ${item.name}'),
+                  Text('Amount: LKR ${item.price} x ${item.quantity}'),
+                  Text('Total: LKR ${item.price * item.quantity}'),
+                  SizedBox(height: 10),
+                ],
+              )),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _checkout();
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+            },
+          ),
+          const Spacer(),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                Cart.cartItems.clear();
+              });
+            },
+            child: const Text("Clear", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Cart.cartItems.isNotEmpty
+                ? ListView.builder(
+                    itemCount: Cart.cartItems.length,
+                    itemBuilder: (context, index) {
+                      return CartItemWidget(
+                        item: Cart.cartItems[index],
+                        onAdd: () {
+                          setState(() {
+                            Cart.cartItems[index].quantity++;
+                          });
+                        },
+                        onRemove: () {
+                          setState(() {
+                            if (Cart.cartItems[index].quantity > 1) {
+                              Cart.cartItems[index].quantity--;
+                            } else {
+                              Cart.cartItems.removeAt(index);
+                            }
+                          });
+                        },
+                      );
+                    },
+                  )
+                : const Center(child: Text('No items in the cart')),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed: _showCheckoutConfirmation,
+            child: const Text('CheckOut'),
+          ),
+        ],
       ),
     );
   }
