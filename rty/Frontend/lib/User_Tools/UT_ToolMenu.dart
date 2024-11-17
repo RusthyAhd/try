@@ -17,7 +17,7 @@ class UT_ToolMenu extends StatefulWidget {
     required this.shopName,
     required this.shopId,
     required this.shopEmail,
-    required this.shopPhone, required product,
+    required this.shopPhone, required String product,
   });
 
   @override
@@ -25,6 +25,8 @@ class UT_ToolMenu extends StatefulWidget {
 }
 
 class _UT_ToolMenuState extends State<UT_ToolMenu> {
+  bool _isLoading = true;
+  bool _noToolsFound = false;
   final List<Map<String, dynamic>> products = [];
 
   @override
@@ -62,10 +64,11 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
 
       if (data['status'] == 200) {
         final tools = data['data'];
-        setState(() {
-          products.clear();
+        if (tools.length > 0) {
+          List<Map<String, dynamic>> fetchedTools = [];
+
           for (var tool in tools) {
-            products.add({
+            fetchedTools.add({
               'id': tool['tool_id'] ?? 'N/A',
               'title': tool['title'] ?? 'Service Name',
               'price': tool['item_price'].toString(),
@@ -78,7 +81,19 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
               'available_hours': tool['available_hours'] ?? 'N/A',
             });
           }
-        });
+
+          setState(() {
+            products.clear();
+            products.addAll(fetchedTools);
+            _isLoading = false;
+            _noToolsFound = false;
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+            _noToolsFound = true;
+          });
+        }
       } else {
         QuickAlert.show(
           context: context,
@@ -94,10 +109,14 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
         title: 'Oops...',
         text: 'An error occurred. Please try again.',
       );
+      setState(() {
+        _isLoading = false;
+        _noToolsFound = true;
+      });
     }
   }
 
-    Future<void> saveProductToPreferences(Map<String, dynamic> product) async {
+  Future<void> saveProductToPreferences(Map<String, dynamic> product) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedProduct', jsonEncode(product));
   }
@@ -116,7 +135,12 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color.fromARGB(255, 47, 221, 105), Color.fromARGB(255, 17, 202, 79), Color.fromARGB(255, 45, 251, 114), const Color.fromARGB(255, 45, 251, 182)],
+            colors: [
+              Color.fromARGB(255, 47, 221, 105),
+              Color.fromARGB(255, 17, 202, 79),
+              Color.fromARGB(255, 45, 251, 114),
+              const Color.fromARGB(255, 45, 251, 182)
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -126,7 +150,7 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-                Stack(
+              Stack(
                 children: [
                   Container(
                     height: 200,
@@ -138,7 +162,7 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
                       ),
                     ),
                   ),
-              Positioned(
+                  Positioned(
                     left: 16,
                     bottom: 16,
                     child: Column(
@@ -167,23 +191,38 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
                 ],
               ),
               SizedBox(height: 20),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                    return productTile(
-                      context,
-                      product['title']!,
-                      product['price']!,
-                      product['image']!,
-                      product['description']!,
-                      widget.shopEmail,
-                      product,
-                    );
-                  },
+
+              // Show loading indicator or no tools found message
+              if (_isLoading)
+                Center(child: CircularProgressIndicator(color: Colors.white))
+              else if (_noToolsFound)
+                Padding(
+                  padding: const EdgeInsets.only(top: 50.0),
+                  child: Center(
+                    child: Text(
+                      'No tools exist for this shop',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                  ),
+                )
+              else
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final product = products[index];
+                      return productTile(
+                        context,
+                        product['title']!,
+                        product['price']!,
+                        product['image']!,
+                        product['description']!,
+                        widget.shopEmail,
+                        product,
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         ),
