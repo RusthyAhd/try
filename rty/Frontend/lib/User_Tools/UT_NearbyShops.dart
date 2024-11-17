@@ -31,9 +31,10 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
   double _longitude = 79.8612;
   late GoogleMapController mapController;
   final Set<google_maps.Marker> _markers = {};
+  bool _isLoading = true;
+  bool _noShopsFound = false;
 
-  final List<Map<String, dynamic>> serviceProviders = [
-  ];
+  final List<Map<String, dynamic>> serviceProviders = [];
 
   @override
   void initState() {
@@ -115,6 +116,13 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
             serviceProviders.addAll(providers);
             _markers.clear();
             _markers.addAll(providerMarkers);
+            _isLoading = false;
+            _noShopsFound = false;
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+            _noShopsFound = true;
           });
         }
       }
@@ -129,6 +137,10 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
         titleColor: Colors.white,
         textColor: Colors.white,
       );
+      setState(() {
+        _isLoading = false;
+        _noShopsFound = true;
+      });
     }
   }
 
@@ -208,166 +220,178 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                       },
                       markers: _markers,
                     ),
-
-                  
                   ],
                 ),
               ),
             ),
             SizedBox(height: 20),
 
-            // List of Service Providers with Enhanced Design
-            Expanded(
-              child: ListView.builder(
-                itemCount: serviceProviders.length,
-                itemBuilder: (context, index) {
-                  final provider = serviceProviders[index];
+            // Show loading indicator or no shops found message
+            if (_isLoading)
+              Center(child: CircularProgressIndicator(color: Colors.white))
+            else if (_noShopsFound)
+              Padding(
+                padding: const EdgeInsets.only(top: 50.0),
+                child: Center(
+                  child: Text(
+                    'No shops exist here',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                ),
+              )
+            else
+              // List of Service Providers with Enhanced Design
+              Expanded(
+                child: ListView.builder(
+                  itemCount: serviceProviders.length,
+                  itemBuilder: (context, index) {
+                    final provider = serviceProviders[index];
 
-                  return GestureDetector(
-                    child: Card(
-                      elevation: 10,
-                      margin:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 300),
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
+                    return GestureDetector(
+                      child: Card(
+                        elevation: 10,
+                        margin:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
-                          gradient: LinearGradient(
-                            colors: [const Color.fromARGB(255, 183, 245, 155), Colors.green!],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        provider['shop_name'] ?? 'Shop Name',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 300),
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: LinearGradient(
+                              colors: [const Color.fromARGB(255, 183, 245, 155), Colors.green!],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          provider['shop_name'] ?? 'Shop Name',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87,
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        'Owner: ${provider['name'] ?? 'N/A'}',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey[700],
+                                        SizedBox(height: 4),
+                                        Text(
+                                          'Owner: ${provider['name'] ?? 'N/A'}',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[700],
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green[100],
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    provider['category'] ?? 'N/A',
-                                    style: TextStyle(
-                                      color: Colors.green[700],
-                                      fontWeight: FontWeight.bold,
+                                      ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Icon(Icons.location_on, color: Colors.red[400], size: 20),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    provider['address'] ?? 'Address not available',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.phone, color: Colors.blue[400], size: 20),
-                                SizedBox(width: 8),
-                                Text(
-                                  provider['phone'] ?? 'N/A',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Distance: ${_calculateDistance(
-                                    provider['location_lat']?.toDouble(),
-                                    provider['location_long']?.toDouble(),
-                                  ).toStringAsFixed(2)} km',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => UT_ToolMenu(
-                                          shopName: provider['shop_name'] ?? 'N/A',
-                                          shopId: provider['id'] ?? 'N/A', 
-                                          shopEmail: provider['email'] ?? 'N/A',
-                                          shopPhone: provider['phone'] ?? 'N/A',
-                                          product: 'YourProduct', // Add the required product argument
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green[700],
-                                    shape: RoundedRectangleBorder(
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green[100],
                                       borderRadius: BorderRadius.circular(20),
                                     ),
+                                    child: Text(
+                                      provider['category'] ?? 'N/A',
+                                      style: TextStyle(
+                                        color: Colors.green[700],
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
-                                  child: Text(
-                                    'View Product',
-                                    style: TextStyle(color: Colors.white),
+                                ],
+                              ),
+                              SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Icon(Icons.location_on, color: Colors.red[400], size: 20),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      provider['address'] ?? 'Address not available',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(Icons.phone, color: Colors.blue[400], size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    provider['phone'] ?? 'N/A',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[800],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Distance: ${_calculateDistance(
+                                      provider['location_lat']?.toDouble(),
+                                      provider['location_long']?.toDouble(),
+                                    ).toStringAsFixed(2)} km',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => UT_ToolMenu(
+                                            shopName: provider['shop_name'] ?? 'N/A',
+                                            shopId: provider['id'] ?? 'N/A', 
+                                            shopEmail: provider['email'] ?? 'N/A',
+                                            shopPhone: provider['phone'] ?? 'N/A',
+                                            product: 'YourProduct', // Add the required product argument
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green[700],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'View Product',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
           ],
         ),
       ),
