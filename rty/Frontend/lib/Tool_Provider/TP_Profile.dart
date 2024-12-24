@@ -96,7 +96,6 @@ class _TP_ProfileState extends State<TP_Profile> {
         'Authorization': '$token',
       }); // Send a POST request to the API
       final data = jsonDecode(response.body); // Decode the response
-      final status = data['status']; // Get the status from the response
 
       if (response.statusCode == 200) {
         final profile = data['data'];
@@ -118,7 +117,7 @@ class _TP_ProfileState extends State<TP_Profile> {
           'email': profile['email'] ?? '',
           'phone': profile['phone'] ?? '',
           'address': profile['address'] ?? '',
-          'location': location ?? 'unknown',
+          'location': location,
           'category': profile['category'] ?? '',
         };
         setState(() {
@@ -128,7 +127,7 @@ class _TP_ProfileState extends State<TP_Profile> {
           OwnerNameController.text = profile['name'];
           shopNameController.text = profile['shop_name'];
           shopAddressController.text = profile['address'];
-          shopLocationController.text = location ?? 'unknown';
+          shopLocationController.text = location;
         });
       } else {
         QuickAlert.show(
@@ -202,7 +201,6 @@ class _TP_ProfileState extends State<TP_Profile> {
           },
           body: json.encode(shopprofileData)); // Send a POST request to the API
       final data = jsonDecode(response.body); // Decode the response
-      final status = data['status']; // Get the status from the response
 
       if (response.statusCode == 200) {
         QuickAlert.show(

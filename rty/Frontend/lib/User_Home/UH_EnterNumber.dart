@@ -1,4 +1,3 @@
-import 'dart:convert'; // Importing the dart:convert library for JSON encoding and decoding
 
 import 'package:flutter/material.dart'; // Importing Flutter material package for UI components
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importing flutter_dotenv for environment variables
@@ -25,6 +24,7 @@ class _EnterNumberState extends State<EnterNumber> {
   final _formKey = GlobalKey<FormState>(); // Key for the form
   final _phoneController =
       TextEditingController(); // Controller for the phone number input
+  // ignore: unused_field
   bool _isLoading = false; // Loading state
 
   @override
@@ -126,6 +126,7 @@ class _EnterNumberState extends State<EnterNumber> {
                     ),
                   ),
                   const SizedBox(height: 25), // Add some space
+                  
                   ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
@@ -142,7 +143,6 @@ class _EnterNumberState extends State<EnterNumber> {
                                 '$baseURL/profile/${_phoneController.text}'),
                           );
 
-                          final data = jsonDecode(response.body);
                           setState(() => _isLoading = false);
 
                           if (!mounted) return;

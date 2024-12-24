@@ -275,13 +275,7 @@ class _TP_AddToolState extends State<TP_AddTool> {
     
   }
 
-  Widget _buildPrice() {
-    return _buildTextField(_priceController, 'Price', inputType: TextInputType.number);
-  }
 
-  Widget _buildDiscount() {
-    return _buildTextField(_discountController, 'Discount', inputType: TextInputType.number);
-  }
 
  
 

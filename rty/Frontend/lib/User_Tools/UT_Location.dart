@@ -3,7 +3,6 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart' as loc;
 import 'package:tap_on/Home%20page.dart';
 import 'package:tap_on/User_Tools/UT_NearbyShops.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as google_maps;
@@ -26,7 +25,6 @@ class _UT_LocationState extends State<UT_Location> {
   double? _latitude;
   double? _longitude;
   late GoogleMapController mapController;
-  String _selectedCity = '';
 
   final Set<google_maps.Marker> _markers = {};
 
@@ -93,18 +91,6 @@ class _UT_LocationState extends State<UT_Location> {
     });
   }
 
-  void _goToCurrentLocation() async {
-    final loc.Location location = loc.Location();
-    final currentLocation = await location.getLocation();
-    if (currentLocation.latitude != null && currentLocation.longitude != null) {
-      setState(() {
-        currentPosition = LatLng(
-          currentLocation.latitude ?? 0.0,
-          currentLocation.longitude ?? 0.0,
-        );
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +130,6 @@ class _UT_LocationState extends State<UT_Location> {
                 onSelected: (suggestion) {
                   _typeAheadController.text = suggestion;
                   setState(() {
-                    _selectedCity = suggestion;
                   });
                 },
                 builder: (context, controller, focusNode) {

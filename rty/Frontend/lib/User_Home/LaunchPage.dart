@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tap_on/User_Home/UH_EnterNumber.dart';
 
-const String imagePath = 'assets/images/imageb.jpeg';
+const String imagePath = 'assets/images/Launch_Bg.jpeg';
 
 class LaunchPage extends StatelessWidget {
   const LaunchPage({super.key});
@@ -49,7 +49,7 @@ class LaunchPage extends StatelessWidget {
                           BorderRadius.circular(20), // Rounded corners
                     ),
                     child: Image.asset(
-                      'assets/images/newlogod.png',
+                      'assets/images/Launch_logo.png',
                       width: screenWidth * 0.9, // Adjust the width as needed
                       height:
                           screenHeight * 0.25, // Adjust the height as needed
@@ -84,8 +84,8 @@ class LaunchPage extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => EnterNumber()));
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 4, 71, 239),
-                    foregroundColor: Colors.orange, // Button color
+                    backgroundColor: const Color.fromARGB(190, 0, 142, 244),
+                    foregroundColor: const Color.fromARGB(255, 244, 189, 8), // Button color
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                     textStyle: TextStyle(fontSize: 16, color: Colors.white),
                     shape: RoundedRectangleBorder(
