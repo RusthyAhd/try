@@ -30,8 +30,7 @@ class _TP_RegisterState extends State<TP_Register> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  bool _isLoadingLocation = false;
-  String _currentAddress = "";
+  // ignore: unused_field
   double? _latitude;
   double? _longitude;
 
@@ -230,7 +229,6 @@ class _TP_RegisterState extends State<TP_Register> {
 
   Future<void> _getCurrentLocation() async {
     setState(() {
-      _isLoadingLocation = true;
     });
 
     bool serviceEnabled;
@@ -239,8 +237,6 @@ class _TP_RegisterState extends State<TP_Register> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       setState(() {
-        _currentAddress = 'Location services are disabled.';
-        _isLoadingLocation = false;
       });
       return;
     }
@@ -250,8 +246,6 @@ class _TP_RegisterState extends State<TP_Register> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         setState(() {
-          _currentAddress = 'Location permissions are denied';
-          _isLoadingLocation = false;
         });
         return;
       }
@@ -259,8 +253,6 @@ class _TP_RegisterState extends State<TP_Register> {
 
     if (permission == LocationPermission.deniedForever) {
       setState(() {
-        _currentAddress = 'Location permissions are permanently denied';
-        _isLoadingLocation = false;
       });
       return;
     }
@@ -278,10 +270,8 @@ class _TP_RegisterState extends State<TP_Register> {
     setState(() {
       _latitude = position.latitude;
       _longitude = position.longitude;
-      _currentAddress =
-          "${place.locality}, ${place.postalCode}, ${place.country}";
       _locationController.text = place.locality ?? '';
-      _isLoadingLocation = false;
+      print('Longitude: $_longitude'); // Use the _longitude field
     });
   }
 

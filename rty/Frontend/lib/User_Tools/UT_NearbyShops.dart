@@ -4,10 +4,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:quickalert/quickalert.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tap_on/Home%20page.dart';
 import 'package:tap_on/User_Tools/UT_ToolMenu.dart';
 import 'package:http/http.dart' as http;
@@ -212,7 +210,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                     GoogleMap(
                       initialCameraPosition: CameraPosition(
                         target: LatLng(
-                            _latitude ?? 6.9388614, _longitude ?? 79.8542005),
+                            _latitude, _longitude),
                         zoom: 13,
                       ),
                       onMapCreated: (GoogleMapController controller) {
@@ -261,7 +259,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             gradient: LinearGradient(
-                              colors: [const Color.fromARGB(255, 183, 245, 155), Colors.green!],
+                              colors: [const Color.fromARGB(255, 183, 245, 155), Colors.green],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),

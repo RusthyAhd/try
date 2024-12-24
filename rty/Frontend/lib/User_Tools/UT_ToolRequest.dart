@@ -22,7 +22,6 @@ class UT_ToolRequest extends StatefulWidget {
 class _UT_ToolRequestState extends State<UT_ToolRequest> {
   int quantity = 0;
   final _qytController = TextEditingController(text: '0');
-  String? _userId;
   String? _userName;
   String? _userPhone;
   String? _userAddress;
@@ -40,7 +39,6 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
   Future<void> _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userId = prefs.getString('userId') ?? '';
       _userName = prefs.getString('userName') ?? '';
       _userPhone = prefs.getString('userPhone') ?? '';
       _userAddress = prefs.getString('userAddress') ?? '';
@@ -205,7 +203,7 @@ class _UT_ToolRequestState extends State<UT_ToolRequest> {
         : Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [const Color.fromARGB(255, 109, 236, 113), Colors.green[500]!,const Color.fromARGB(255, 57, 146, 60)!],
+            colors: [const Color.fromARGB(255, 109, 236, 113), Colors.green[500] ?? Colors.green, const Color.fromARGB(255, 57, 146, 60)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
