@@ -103,7 +103,7 @@ class _EnterNumberState extends State<EnterNumber> {
                   ),
                   const Text(
                     slogan, // Display the slogan
-                    style: TextStyle(color: Colors.blueGrey), // Set the text color
+                    style: TextStyle(color: Colors.white), // Set the text color
                   ),
                   SizedBox(
                     height: 20, // Add some space
@@ -188,7 +188,7 @@ class _EnterNumberState extends State<EnterNumber> {
                       'Send', // Set the button text
                       style: TextStyle(
                         fontSize: 16, // Set the font size
-                        color: Colors.white38, // Set the text color
+                        color: Colors.white, // Set the text color
                         fontWeight: FontWeight.bold, // Set the font weight
                       ),
                     ),
