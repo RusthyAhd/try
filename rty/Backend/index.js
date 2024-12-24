@@ -7,14 +7,12 @@ const CustomResponse = require('./utils/custom.response');
 
 // Import routes
 const OwnerRouter = require('./routes/OwnerRoutes'); // Shop Owner routes
-const ServiceProviderRouter = require('./routes/ServiceProviderRoutes'); // Service Provider routes
-const profileRoutes = require('./routes/Profile.routes');
-const AuthRoute = require('./routes/AuthRoutes');
+ // Service Provider routes
+
+
 const ToolRoute = require('./routes/ToolRoutes');
 const ToolOrderRoute = require('./routes/ToolOrderRoutes');
-const ServiceRoute = require('./routes/ServiceRoutes');
-const ServiceOrderRoute = require('./routes/ServiceOrderRoutes');
-const {sentOTP} = require("./utils/OTPService");
+
 //const {json, urlencoded} = require("body-parser");
 const bodyParser = require('body-parser');
 const userRoutes = require('./routes/newroute');
@@ -40,20 +38,7 @@ mongoose.connect(process.env.MONGO_URI)
         console.error('MongoDB Connection Error:', error.message);
     });
 
-// Health check route to verify MongoDB connectivity
-app.get('/serviceregistration', async (req, res) => {
-    try {
-        const test = await mongoose.connection.db.admin().ping(); // Check MongoDB connectivity
-        
-        // Log the test result in terminal
-        console.log('MongoDB Ping Result:', test);
 
-        res.status(200).send('MongoDB connection is working: ' + JSON.stringify(test));
-    } catch (error) {
-        console.error('MongoDB Ping Failed:', error.message); // Log the error to the terminal
-        res.status(500).send('MongoDB connection failed: ' + error.message);
-    }
-});
 
 app.get('/test', function (req, res, next) {
 
@@ -73,13 +58,12 @@ app.use(express.json());
 
 // Define the routes for shop owner and service provider registration
 app.use('/api/v1/shop', OwnerRouter);  // Shop owner routes are under /shopowner
-app.use('/api/v1/service-provider', ServiceProviderRouter); // Service provider routes are under /serviceprovider
+// Service provider routes are under /serviceprovider
 
-app.use('/api/v1/auth',AuthRoute)
+
 app.use('/api/v1/tool',ToolRoute)
 app.use('/api/v1/to',ToolOrderRoute)
-app.use('/api/v1/service',ServiceRoute)
-app.use('/api/v1/so',ServiceOrderRoute)
+
 app.use('/api/v1/profile',userRoutes);
 app.use('/api/v1', require('./routes/ToolOrderRoutes'));
 // this should always be the end of the routs

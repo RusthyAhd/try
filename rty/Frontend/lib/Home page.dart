@@ -273,7 +273,7 @@ class _HomePageState extends State<HomePage> {
           
         Text(
           'Your one-stop shop for everything!',
-          style: TextStyle(color: Colors.orange, fontSize: 16),
+          style: TextStyle(color: Colors.white, fontSize: 16),
         ),
         ],
       ),
