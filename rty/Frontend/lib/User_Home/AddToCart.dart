@@ -294,35 +294,37 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
         children: [
           Expanded(
             child: Cart.cartItems.isNotEmpty
-                ? ListView.builder(
-                    itemCount: Cart.cartItems.length,
-                    itemBuilder: (context, index) {
-                      return CartItemWidget(
-                        item: Cart.cartItems[index],
-                        onAdd: () {
-                          setState(() {
-                            Cart.cartItems[index].quantity++;
-                          });
-                        },
-                        onRemove: () {
-                          setState(() {
-                            if (Cart.cartItems[index].quantity > 1) {
-                              Cart.cartItems[index].quantity--;
-                            } else {
-                              Cart.cartItems.removeAt(index);
-                            }
-                          });
-                        },
-                      );
-                    },
-                  )
-                : const Center(child: Text('No items in the cart')),
+          ? ListView.builder(
+              itemCount: Cart.cartItems.length,
+              itemBuilder: (context, index) {
+                return CartItemWidget(
+            item: Cart.cartItems[index],
+            onAdd: () {
+              setState(() {
+                Cart.cartItems[index].quantity++;
+              });
+            },
+            onRemove: () {
+              setState(() {
+                if (Cart.cartItems[index].quantity > 1) {
+                  Cart.cartItems[index].quantity--;
+                } else {
+                  Cart.cartItems.removeAt(index);
+                }
+              });
+            },
+                );
+              },
+            )
+          : const Center(child: Text('No items in the cart')),
           ),
+          SizedBox(height: 20), // Add some space above the button
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             onPressed: _showCheckoutConfirmation,
             child: const Text('CheckOut'),
           ),
+          SizedBox(height: 20), // Add some space below the button
         ],
       ),
     );

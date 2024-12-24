@@ -1,7 +1,6 @@
 const express = require('express'); // Import express package
 const OwnerController = require('../controllers/Owner.Controller');
 
-const ServiceProviderController = require("../controllers/ServiceProvider.controller"); // Import the controller
 
 const router = express.Router();
 

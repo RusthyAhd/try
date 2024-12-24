@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tap_on/User_Home/AddToCart.dart';
+import 'package:tap_on/User_Tools/UT_NearbyShops.dart';
 import 'package:tap_on/User_Tools/UT_ToolDetails.dart';
 import 'package:http/http.dart' as http;
 
@@ -130,7 +132,30 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
           style: TextStyle(
               color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
         ),
+        
         backgroundColor: Colors.green,
+         elevation: 4,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => UT_NearbyShops(
+                  userLocation: 'your_user_location', // Replace with actual user location
+                  tool: 'your_tool', // Replace with actual tool
+                )));
+          },
+        ),
+        actions: [
+         IconButton(
+              icon: const Icon(Icons.shopping_cart_checkout_outlined, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddToCart()),
+                );
+              },
+            ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
