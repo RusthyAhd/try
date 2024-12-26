@@ -233,30 +233,30 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          // Advertisement Card with Gradient
-    
-               Expanded(
+            // Advertisement Card with Gradient
+            SizedBox(
+            height: 200, // Reduced height
             child: PageView(
               controller: _pageController,
               scrollDirection: Axis.horizontal,
               children: [
-                AdvertisementCard(
-                  backgroundColor: Colors.green[300]!,
-                  icon: Icons.local_offer,
-                  title: "Special Offer!",
-                  description: "Up to 50% off on daily essentials. Grab it now!",
-                   imagePath: 'assets/images/offer.jpg',
-                ),
-                AdvertisementCard(
-                  backgroundColor: Colors.green[200]!,
-                  icon: Icons.delivery_dining,
-                  title: "Free Delivery",
-                  description: "Free delivery on orders above \$50!",
-                   imagePath: 'assets/images/sale.jpg',
-                ),
+              AdvertisementCard(
+                backgroundColor: Colors.green[300]!,
+                icon: Icons.local_offer,
+                title: "Special Offer!",
+                description: "Up to 50% off on daily essentials. Grab it now!",
+                imagePath: 'assets/images/offer.jpg',
+              ),
+              AdvertisementCard(
+                backgroundColor: Colors.green[200]!,
+                icon: Icons.delivery_dining,
+                title: "Free Delivery",
+                description: "Free delivery on orders above \$50!",
+                imagePath: 'assets/images/sale.jpg',
+              ),
               ],
             ),
-          ),
+            ),
           
         ],
       ),

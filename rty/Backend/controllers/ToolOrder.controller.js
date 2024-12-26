@@ -2,7 +2,7 @@ const CustomResponse = require("../utils/custom.response");
 const ToolModel = require('../models/Tool.model');
 const ToolOrderModel = require('../models/ToolOrder.model');
 const User = require('../models/newprofilemodels'); // Import the User model
-const OTPGateWay = require("../utils/OTPGateway");
+
 const mongoose = require('mongoose'); // Import mongoose to use ObjectId
 
 exports.addNewOrder = async (req, res) => {
