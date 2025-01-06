@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,6 +7,7 @@ import 'package:tap_on/Home%20page.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:tap_on/User_Tools/UT_ProviderOrderStatus.dart';
 import 'package:tap_on/widgets/Loading.dart';
 
 class CartItem {
@@ -89,14 +92,23 @@ class CartItemWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Image(
-                image: isBase64(item.imageUrl)
-                    ? MemoryImage(base64Decode(item.imageUrl))
-                    : NetworkImage(item.imageUrl) as ImageProvider,
-                height: screenWidth * 0.2,
-                width: screenWidth * 0.2,
-                fit: BoxFit.cover,
-              ),
+                Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.transparent, width: 1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image(
+                  image: isBase64(item.imageUrl)
+                  ? MemoryImage(base64Decode(item.imageUrl))
+                  : NetworkImage(item.imageUrl) as ImageProvider,
+                  height: screenWidth * 0.2,
+                  width: screenWidth * 0.2,
+                  fit: BoxFit.cover,
+                  ),
+                ),
+                ),
               const SizedBox(height: 8),
               Text(
                 item.name,
@@ -137,6 +149,8 @@ class CartItemWidget extends StatelessWidget {
 }
 
 class _ReviewCartPageState extends State<ReviewCartPage> {
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -230,6 +244,8 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        double totalPrice = Cart.cartItems.fold(0, (sum, item) => sum + item.price * item.quantity);
+
         return AlertDialog(
           title: const Text('Confirm Checkout'),
           content: Column(
@@ -245,6 +261,7 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
                   SizedBox(height: 10),
                 ],
               )),
+              Text('Total Amount: LKR ${totalPrice.toStringAsFixed(2)}'),
             ],
           ),
           actions: [
@@ -257,7 +274,7 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _checkout();
+                _submitOrder(totalPrice);
               },
               child: const Text('Confirm'),
             ),
@@ -267,8 +284,67 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
     );
   }
 
+  Future<void> _submitOrder(double totalAmount) async {
+    try {
+      setState(() => _isLoading = true);
+      final baseURL = dotenv.env['BASE_URL'];
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      for (var item in Cart.cartItems) {
+        final bodyData = {
+          "order_id": DateTime.now().millisecondsSinceEpoch.toString(),
+          "tool_id": item.name,
+          "shop_id": item.shopEmail,
+          "customer_id": prefs.getString('userPhone') ?? '',
+          "title": item.name,
+          "qty": item.quantity,
+          "days": 1,
+          "total_price": totalAmount,
+          "status": "pending",
+          "date": DateTime.now().toString(),
+        };
+
+        final response = await http.post(
+          Uri.parse('$baseURL/tool-order/new'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': '$token',
+          },
+          body: jsonEncode(bodyData),
+        );
+
+        final data = jsonDecode(response.body);
+
+        if (data['status'] != 200) {
+          _showErrorAlert();
+          return;
+        }
+
+        // Navigate to UT_ProviderOrderStatus page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UT_ProviderOrderStatus(
+              provider: {}, // Pass the provider details if needed
+              status: 'Order Placed Successfully!',
+              order: data['data'], // Pass the order details
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Something went wrong $e');
+      _showErrorAlert();
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    double totalPrice = Cart.cartItems.fold(0, (sum, item) => sum + item.price * item.quantity);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
@@ -292,37 +368,48 @@ class _ReviewCartPageState extends State<ReviewCartPage> {
       ),
       body: Column(
         children: [
-          Expanded(
+          _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Expanded(
             child: Cart.cartItems.isNotEmpty
-          ? ListView.builder(
-              itemCount: Cart.cartItems.length,
-              itemBuilder: (context, index) {
-                return CartItemWidget(
-            item: Cart.cartItems[index],
-            onAdd: () {
-              setState(() {
-                Cart.cartItems[index].quantity++;
-              });
-            },
-            onRemove: () {
-              setState(() {
-                if (Cart.cartItems[index].quantity > 1) {
-                  Cart.cartItems[index].quantity--;
-                } else {
-                  Cart.cartItems.removeAt(index);
-                }
-              });
-            },
-                );
-              },
-            )
-          : const Center(child: Text('No items in the cart')),
+              ? ListView.builder(
+                  itemCount: Cart.cartItems.length,
+                  itemBuilder: (context, index) {
+                    return CartItemWidget(
+                      item: Cart.cartItems[index],
+                      onAdd: () {
+                        setState(() {
+                          Cart.cartItems[index].quantity++;
+                        });
+                      },
+                      onRemove: () {
+                        setState(() {
+                          if (Cart.cartItems[index].quantity > 1) {
+                            Cart.cartItems[index].quantity--;
+                          } else {
+                            Cart.cartItems.removeAt(index);
+                          }
+                        });
+                      },
+                    );
+                  },
+                )
+              : const Center(child: Text('No items in the cart')),
           ),
           SizedBox(height: 20), // Add some space above the button
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            onPressed: _showCheckoutConfirmation,
-            child: const Text('CheckOut'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                'Total: Rs.${totalPrice.toStringAsFixed(2)}',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                onPressed: _showCheckoutConfirmation,
+                child: const Text('CheckOut'),
+              ),
+            ],
           ),
           SizedBox(height: 20), // Add some space below the button
         ],
