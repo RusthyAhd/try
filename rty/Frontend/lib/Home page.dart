@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tap_on/User_Home/AddToCart.dart';
-import 'package:tap_on/User_Home/UH_EnterNumber.dart';
 import 'package:tap_on/User_Home/UH_Notification.dart';
 import 'package:tap_on/User_Home/UH_Profile.dart';
 import 'package:tap_on/User_Tools/UT_Location.dart';
@@ -80,13 +79,7 @@ class _HomePageState extends State<HomePage> {
         title: const Text('TapOn', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green[700],
         elevation: 4,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const EnterNumber()));
-          },
-        ),
+        
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.white),
@@ -262,21 +255,23 @@ class _HomePageState extends State<HomePage> {
       ),
  
   
-    bottomNavigationBar: BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      color: Colors.green[700],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          
-        Text(
-          'Your one-stop shop for everything!',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+    bottomNavigationBar: SizedBox(
+      height: 100,
+      child: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        color: Colors.green[700],
+        child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 1.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+          Text(
+            'Your one-stop shop for everything!',
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+          ],
         ),
-        ],
-      ),
+        ),
       ),
     ),
     );
