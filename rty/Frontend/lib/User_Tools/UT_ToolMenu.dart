@@ -201,15 +201,7 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        TextButton(
-                          onPressed: () {
-                            // Handle "View More" button action
-                          },
-                          child: Text(
-                            "VIEW MORE",
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                        ),
+                        
                       ],
                     ),
                   ),
@@ -225,7 +217,7 @@ class _UT_ToolMenuState extends State<UT_ToolMenu> {
                   padding: const EdgeInsets.only(top: 50.0),
                   child: Center(
                     child: Text(
-                      'No tools exist for this shop',
+                      'No products exist for this shop',
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),

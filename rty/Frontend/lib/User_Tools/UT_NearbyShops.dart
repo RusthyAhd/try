@@ -370,7 +370,7 @@ class _UT_NearbyShopsState extends State<UT_NearbyShops> {
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green[700],
+                                      backgroundColor: Colors.black,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(20),
                                       ),
