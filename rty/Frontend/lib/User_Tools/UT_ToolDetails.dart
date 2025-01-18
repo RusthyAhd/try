@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:tap_on/User_Home/AddToCart.dart';
 import 'package:tap_on/User_Tools/UT_ToolRequest.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ToolDetails extends StatelessWidget {
   final String title;
