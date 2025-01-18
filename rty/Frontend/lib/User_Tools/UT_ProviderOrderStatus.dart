@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tap_on/Home%20page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UT_ProviderOrderStatus extends StatelessWidget {
   final Map<String, dynamic> provider;
@@ -43,6 +44,46 @@ class UT_ProviderOrderStatus extends StatelessWidget {
                 'Order ID: ${order['order_id']}',
                 style: TextStyle(fontSize: 16),
               ),
+              SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              var shopPhone;
+                              launchUrl(Uri.parse('tel:$shopPhone'));
+                            },
+                            icon: Icon(Icons.phone, color: Colors.black),
+                            label: Text('Call',
+                                style: TextStyle(color: Colors.black)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green[700],
+                              side: BorderSide(color: Colors.black),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              var shopPhone;
+                              launchUrl(Uri.parse('sms:$shopPhone'));
+                            },
+                            icon: Icon(Icons.message, color: Colors.black),
+                            label: Text('Message',
+                                style: TextStyle(color: Colors.black)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green[700],
+                              side: BorderSide(color: Colors.black),
+                              
+                            ),
+
+                            
+                          ),
+                      
+                        ),
+                      ],
+                    ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
@@ -58,6 +99,7 @@ class UT_ProviderOrderStatus extends StatelessWidget {
                 ),
                 child: Text('Back to Home'),
               ),
+
             ],
           ),
         ),

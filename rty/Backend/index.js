@@ -2,6 +2,7 @@ const dotenv = require('dotenv')
 dotenv.config();
 
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const CustomResponse = require('./utils/custom.response');
 
@@ -20,6 +21,9 @@ const userRoutes = require('./routes/newroute');
 
 // Initialize the express app
 const app = express();
+
+// Enable CORS for all routes
+app.use(cors()); // Apply CORS middleware
 
 // app.use(json());
 // app.use(urlencoded({ extended: true }));

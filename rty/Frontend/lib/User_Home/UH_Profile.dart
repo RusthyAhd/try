@@ -7,6 +7,7 @@ import 'package:quickalert/quickalert.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tap_on/Home%20page.dart';
+import 'package:tap_on/User_Home/UH_EnterNumber.dart';
 
 class UH_Profile extends StatefulWidget {
   const UH_Profile({super.key});
@@ -36,6 +37,7 @@ class _UH_ProfileState extends State<UH_Profile> {
   @override
   void initState() {
     super.initState();
+    
     _loadProfileData();
   }
 
@@ -341,8 +343,30 @@ class _UH_ProfileState extends State<UH_Profile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        
+        title: const Text(
+          'Profile',
+          style: TextStyle(color: Colors.white),
+        ),
+
         backgroundColor: Colors.green[700],
+        //
+      actions: [
+        IconButton(
+          color: Colors.white,
+          icon: const Icon(Icons.logout),
+          onPressed: () async {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.clear();
+            if (!mounted) return;
+            Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const EnterNumber()),
+        (route) => false,
+            );
+          },
+        ),
+      ],
       ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator())
@@ -405,6 +429,7 @@ class _UH_ProfileState extends State<UH_Profile> {
                           controller: _nameController,
                           decoration: InputDecoration(
                             labelText: 'Full Name',
+                            hintText: 'M.R.M Rishaf',
                             prefixIcon: Icon(Icons.person),
                           ),
                           validator: (value) => value!.isEmpty
@@ -417,6 +442,7 @@ class _UH_ProfileState extends State<UH_Profile> {
                           controller: _phoneController,
                           decoration: InputDecoration(
                             labelText: 'Phone Number',
+                            hintText: '0771234567',
                             prefixIcon: Icon(Icons.phone),
                           ),
                           validator: (value) => value!.isEmpty
@@ -429,6 +455,7 @@ class _UH_ProfileState extends State<UH_Profile> {
                           controller: _emailController,
                           decoration: InputDecoration(
                             labelText: 'Email',
+                            hintText: 'tapon2025@gmail.com',
                             prefixIcon: Icon(Icons.email),
                           ),
                           validator: (value) =>
@@ -485,11 +512,13 @@ class _UH_ProfileState extends State<UH_Profile> {
                         TextFormField(
                           controller: _addressController,
                           decoration: InputDecoration(
-                            labelText: 'Address',
-                            prefixIcon: Icon(Icons.home),
+                          labelText: 'Address',
+                         
+                          hintText: 'Al-Aqsha,First lane,Kinniya-02',
+                          prefixIcon: Icon(Icons.home),
                           ),
                           validator: (value) =>
-                              value!.isEmpty ? 'Please enter your address' : null,
+                            value!.isEmpty ? 'Please enter your address' : null,
                           onSaved: (value) => address = value!,
                         ),
                         SizedBox(height: 16),
@@ -497,6 +526,7 @@ class _UH_ProfileState extends State<UH_Profile> {
                           controller: _locationController,
                           decoration: InputDecoration(
                             labelText: 'District',
+                            hintText: 'Trincomalee',
                             prefixIcon: Icon(Icons.location_on),
                           ),
                           validator: (value) => value!.isEmpty
@@ -518,6 +548,8 @@ class _UH_ProfileState extends State<UH_Profile> {
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text('Save Profile', style: TextStyle(color: Colors.white)),
                 ),
+                // create a logout button 
+                
               ],
             ),
           ),

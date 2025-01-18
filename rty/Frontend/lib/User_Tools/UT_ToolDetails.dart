@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:tap_on/User_Home/AddToCart.dart';
 import 'package:tap_on/User_Tools/UT_ToolRequest.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ToolDetails extends StatelessWidget {
   final String title;
@@ -214,7 +213,7 @@ class ToolDetails extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Quantity: $qty',
+                                'Available Quantity: $qty',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
@@ -261,99 +260,64 @@ class ToolDetails extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 16),
-                Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        final discountedPrice = double.parse(price) - (double.parse(price) * discount / 100);
-                        final updatedProduct = Map<String, dynamic>.from(product);
-                        updatedProduct['price'] = discountedPrice.toString();
-                        updatedProduct['shop_id'] = product['shop_id']; // Ensure shop_id is passed
-                        
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => UT_ToolRequest(
-                              product: updatedProduct,
-                              shopEmail: shopEmail,
+                Center(
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          final discountedPrice = double.parse(price) - (double.parse(price) * discount / 100);
+                          final updatedProduct = Map<String, dynamic>.from(product);
+                          updatedProduct['price'] = discountedPrice.toString();
+                          updatedProduct['shop_id'] = product['shop_id']; // Ensure shop_id is passed
+                          
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UT_ToolRequest(
+                                product: updatedProduct,
+                                shopEmail: shopEmail,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.green,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.1, vertical: 15),
-                        textStyle: TextStyle(
-                            fontSize: screenWidth * 0.04, color: Colors.white),
-                      ),
-                      child: Text('Request'),
-                    ),
-                    SizedBox(height: 15),
-                    ElevatedButton(
-                      onPressed: () {
-                        Cart.addToCart(CartItem(
-                          name: title,
-                          category: '',
-                          price: double.parse(price),
-                          imageUrl: image,
-                          tag: '',
-                          quantity: 1,
-                          shopEmail: shopEmail,
-                          product: product,
-                        ));
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.green,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.1, vertical: 15),
-                        textStyle: TextStyle(
-                            fontSize: screenWidth * 0.04, color: Colors.white),
-                      ),
-                      child: Text('AddToCart'),
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              launchUrl(Uri.parse('tel:$shopPhone'));
-                            },
-                            icon: Icon(Icons.phone, color: Colors.black),
-                            label: Text('Call',
-                                style: TextStyle(color: Colors.black)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green[700],
-                              side: BorderSide(color: Colors.black),
-                            ),
-                          ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.1, vertical: 15),
+                          textStyle: TextStyle(
+                              fontSize: screenWidth * 0.04, color: Colors.white),
                         ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              launchUrl(Uri.parse('sms:$shopPhone'));
-                            },
-                            icon: Icon(Icons.message, color: Colors.black),
-                            label: Text('Message',
-                                style: TextStyle(color: Colors.black)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green[700],
-                              side: BorderSide(color: Colors.black),
-                              
-                            ),
-
-                            
-                          ),
+                        child: Text('Order Now'),
+                      ),
+                      SizedBox(height: 15),
+                      ElevatedButton(
+                        onPressed: () {
+                          Cart.addToCart(CartItem(
+                            name: title,
+                            category: '',
+                            price: double.parse(price),
+                            imageUrl: image,
+                            tag: '',
+                            quantity: 1,
+                            shopEmail: shopEmail,
+                            product: product,
+                          ));
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.1, vertical: 15),
+                          textStyle: TextStyle(
+                              fontSize: screenWidth * 0.04, color: Colors.white),
+                        ),
+                        child: Text('AddToCart'),
+                      ),
                       
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
